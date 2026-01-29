@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asher-Link | Ad Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root { --primary-blue: #0d6efd; --bg-light: #f8f9fa; }
+        body { background-color: var(--bg-light); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .ad-card { transition: transform 0.2s; border: none; border-radius: 12px; overflow: hidden; }
+        .ad-card:hover { transform: translateY(-5px); }
+        .ad-img { height: 160px; object-fit: cover; background: #eee; }
+        .inactive-label { filter: grayscale(100%); opacity: 0.6; }
+        .stats-card { border-radius: 15px; border: none; }
+        .navbar-brand { font-weight: bold; letter-spacing: 1px; }
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(248, 249, 250, 0.98); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<div id="login-overlay">
+    <div class="card shadow border-0" style="width: 380px; padding: 25px; border-radius: 20px;">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
+            <h4 class="mt-2">Admin Access</h4>
+            <p class="text-muted small">Please enter your management password</p>
+        </div>
+        <input type="password" id="admin_password" class="form-control form-control-lg mb-3" placeholder="Password">
+        <button onclick="attemptLogin()" class="btn btn-primary btn-lg w-100 shadow-sm">Unlock Dashboard</button>
+        <div id="login-error" class="text-danger small mt-3 text-center" style="display:none;">
+            <i class="bi bi-exclamation-circle"></i> Invalid credentials.
+        </div>
+    </div>
+</div>
+
+<div id="dashboard-content" style="display:none;">
+    <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+        <div class="container">
+            <span class="navbar-brand"><i class="bi bi-broadcast"></i> ASHER-LINK AD SERVER</span>
+            <div class="d-flex gap-2">
+                <button onclick="downloadReport()" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-file-earmark-pdf"></i> Report
+                </button>
+                <button onclick="logout()" class="btn btn-danger btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card stats-card bg-primary text-white shadow-sm h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h6 class="opacity-75">Estimated Total Revenue</h6>
+                        <h2 id="total-revenue">R 0.00</h2>
+                        <p class="small mb-0">Total across all active campaigns</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card stats-card shadow-sm h-100">
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-5">
+            <div class="card-header bg-white fw-bold py-3"><i class="bi bi-plus-circle me-2"></i>Create New Campaign</div>
+            <div class="card-body p-4">
+                <form id="uploadForm">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Campaign Name</label>
+                            <input type="text" id="new_ad_id" class="form-control" placeholder="e.g. PizzaPlace" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Target URL</label>
+                            <input type="text" id="new_target_url" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Total View Limit</label>
+                            <input type="number" id="new_total_limit" class="form-control" placeholder="5000">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">Daily View Limit</label>
+                            <input type="number" id="new_daily_limit" class="form-control" placeholder="100">
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label small fw-bold">Ad Image (JPG/PNG)</label>
+                            <input type="file" id="new_file" class="form-control" accept="image/*" required>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-success w-100 fw-bold">Deploy Campaign</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <h4 class="mb-3 fw-bold">Live Campaigns</h4>
+        <div id="ad-list" class="row">
+            </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "https://api.oxeansa.co.za/system";
+    const DEFAULT_CPM = 50.00;
+    let adminToken = sessionStorage.getItem('adminToken');
+    let myChart;
+
+    // --- Authentication Logic ---
+    if (adminToken) {
+        showDashboard();
+    }
+
+    async function attemptLogin() {
+        const password = document.getElementById('admin_password').value;
+        const errorEl = document.getElementById('login-error');
+        
+        try {
+            const res = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.token) {
+                sessionStorage.setItem('adminToken', data.token);
+                adminToken = data.token;
+                showDashboard();
+            } else {
+                errorEl.style.display = 'block';
+            }
+        } catch (err) {
+            alert("API connection failed.");
+        }
+    }
+
+    function showDashboard() {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('dashboard-content').style.display = 'block';
+        loadDashboard();
+    }
+
+    function logout() {
+        sessionStorage.removeItem('adminToken');
+        location.reload();
+    }
+
+    // --- Dashboard Logic ---
+    async function loadDashboard() {
+        try {
+            const res = await fetch(`${API_BASE}/ads/active`);
+            if (res.status === 401) throw new Error("Unauthorized");
+            const ads = await res.json();
+            
+            renderCards(ads);
+            updateChart(ads);
+            calculateGlobalRevenue(ads);
+        } catch (err) {
+            logout();
+        }
+    }
+
+    function renderCards(ads) {
+        const container = document.getElementById('ad-list');
+        container.innerHTML = '';
+
+        ads.forEach(ad => {
+            const earnings = (ad.impressions / 1000) * (ad.cpm_rate || DEFAULT_CPM);
+            const statusClass = ad.active ? '' : 'inactive-label';
+            const progress = ad.total_limit ? (ad.impressions / ad.total_limit) * 100 : 0;
+            
+            container.innerHTML += `
+                <div class="col-md-4 mb-4">
+                    <div class="card ad-card shadow-sm ${statusClass}">
+                        <img src="${ad.image_url}" class="card-img-top ad-img" onerror="this.src='https://placehold.co/400x200?text=No+Image'">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title mb-0">${ad.ad_id}</h5>
+                                <span class="text-success fw-bold">R ${earnings.toFixed(2)}</span>
+                            </div>
+                            <p class="text-muted small mt-1">Daily: ${ad.daily_count || 0} / ${ad.daily_limit || '∞'}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" ${ad.active ? 'checked' : ''} 
+                                        onchange="toggleAd('${ad._id}', this.checked)">
+                                    <label class="form-check-label small">Active</label>
+                                </div>
+                                <button class="btn btn-link btn-sm text-danger p-0" onclick="deleteAd('${ad._id}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 py-2">
+                             <div class="progress" style="height: 6px; border-radius: 10px;">
+                                <div class="progress-bar bg-primary" style="width: ${progress}%"></div>
+                             </div>
+                             <div class="d-flex justify-content-between" style="font-size: 0.7rem;">
+                                <span class="text-muted">Total Cap</span>
+                                <span class="fw-bold">${ad.impressions} / ${ad.total_limit || '∞'}</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function updateChart(ads) {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        if (myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ads.map(a => a.ad_id),
+                datasets: [{
+                    label: 'Total Impressions',
+                    data: ads.map(a => a.impressions),
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 5
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } } 
+            }
+        });
+    }
+
+    function calculateGlobalRevenue(ads) {
+        const total = ads.reduce((sum, ad) => sum + ((ad.impressions / 1000) * (ad.cpm_rate || DEFAULT_CPM)), 0);
+        document.getElementById('total-revenue').innerText = `R ${total.toFixed(2)}`;
+    }
+
+    // --- API Interactions ---
+    async function toggleAd(id, status) {
+        await fetch(`${API_BASE}/ads/manage/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken },
+            body: JSON.stringify({ active: status })
+        });
+        loadDashboard();
+    }
+
+    async function deleteAd(id) {
+        if (!confirm("Are you sure?")) return;
+        await fetch(`${API_BASE}/ads/manage/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-Admin-Token': adminToken }
+        });
+        loadDashboard();
+    }
+
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('ad_id', document.getElementById('new_ad_id').value);
+        formData.append('target_url', document.getElementById('new_target_url').value);
+        formData.append('total_limit', document.getElementById('new_total_limit').value);
+        formData.append('daily_limit', document.getElementById('new_daily_limit').value);
+        formData.append('file', document.getElementById('new_file').files[0]);
+
+        const res = await fetch(`${API_BASE}/ads/create`, {
+            method: 'POST',
+            headers: { 'X-Admin-Token': adminToken },
+            body: formData
+        });
+
+        if (res.ok) { alert("Campaign Created!"); location.reload(); }
+        else { alert("Error creating campaign."); }
+    };
+
+    async function downloadReport() {
+        const res = await fetch(`${API_BASE}/ads/report`, {
+            headers: { 'X-Admin-Token': adminToken }
+        });
+        if (!res.ok) return alert("Unauthorized");
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Ad_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+        a.click();
+    }
+</script>
+</body>
+</html>

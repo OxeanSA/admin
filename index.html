@@ -3,136 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asher-Link | Enterprise Ad Admin</title>
+    <title>Asher-Link | Core Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2563eb;
-            --secondary: #64748b;
-            --success: #10b981;
             --dark: #0f172a;
-            --light-bg: #f1f5f9;
+            --bg: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
-        body { background-color: var(--light-bg); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--dark); }
-        .glass-card { background: white; border: 1px solid rgba(226, 232, 240, 1); border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        .stats-gradient { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; }
-        .nav-custom { background: var(--dark); padding: 1rem 0; }
-        .ad-img { height: 180px; object-fit: cover; border-bottom: 1px solid #e2e8f0; }
-        .btn-primary { background-color: var(--primary); border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 500; }
-        .form-control { border-radius: 8px; padding: 0.6rem; border: 1px solid #cbd5e1; }
-        .form-control:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); border-color: var(--primary); }
-        #login-overlay { position: fixed; inset: 0; background: var(--light-bg); z-index: 10000; display: flex; align-items: center; justify-content: center; }
-        .progress { height: 8px; border-radius: 4px; background-color: #e2e8f0; }
-        .badge-active { background-color: #dcfce7; color: #166534; }
-        .badge-inactive { background-color: #f1f5f9; color: #475569; }
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--dark);
+        }
+        .glass-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .nav-custom {
+            background: var(--dark);
+            padding: 1rem 0;
+        }
+        .ad-img {
+            height: 140px;
+            object-fit: cover;
+        }
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .section-title {
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .badge-active {
+            background-color: var(--success);
+            color: white;
+        }
+        .badge-inactive {
+            background-color: var(--danger);
+            color: white;
+        }
+        .progress-bar {
+            background-color: var(--primary);
+        }
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        .text-success {
+            color: var(--success) !important;
+        }
+        .text-danger {
+            color: var(--danger) !important;
+        }
+        .text-warning {
+            color: var(--warning) !important;
+        }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="glass-card p-5 text-center" style="width: 400px;">
-        <div class="mb-4">
-            <div class="bg-primary text-white d-inline-block p-3 rounded-circle mb-3">
-                <i class="bi bi-shield-lock fs-2"></i>
-            </div>
-            <h3 class="fw-bold">Management Portal</h3>
-            <p class="text-secondary small">Secure access for Asher-Link Admin</p>
-        </div>
-        <div class="text-start">
-            <label class="form-label small fw-semibold">Security Token</label>
-            <input type="password" id="admin_password" class="form-control mb-3" placeholder="••••••••">
-            <button onclick="attemptLogin()" class="btn btn-primary w-100 py-2">Sign In</button>
-            <div id="login-error" class="text-danger small mt-3 text-center" style="display:none;">
-                <i class="bi bi-x-circle me-1"></i> Access Denied: Invalid Token
-            </div>
-        </div>
+        <i class="bi bi-cpu-fill text-primary fs-1 mb-3"></i>
+        <h4 class="fw-bold">Core Access</h4>
+        <input type="password" id="admin_password" class="form-control my-3 text-center" placeholder="Admin Token">
+        <div id="login-error" class="text-danger small mb-2" style="display: none;">Invalid credentials</div>
+        <button onclick="attemptLogin()" class="btn btn-primary w-100">Unlock System</button>
     </div>
 </div>
 
 <div id="dashboard-content" style="display:none;">
-    <nav class="nav-custom mb-4">
+    <nav class="nav-custom mb-4 shadow">
         <div class="container d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center text-white">
-                <i class="bi bi-cpu-fill fs-3 me-2 text-primary"></i>
-                <span class="fs-5 fw-bold tracking-tight">ASHER-LINK <span class="text-primary">CORE</span></span>
-            </div>
-            <div class="d-flex gap-3">
-                <button onclick="downloadReport()" class="btn btn-sm btn-outline-light px-3">
-                    <i class="bi bi-cloud-arrow-down me-1"></i> Export Data
-                </button>
-                <button onclick="logout()" class="btn btn-sm btn-outline-danger px-3">
-                    <i class="bi bi-power"></i>
-                </button>
+            <span class="navbar-brand text-white fw-bold"><i class="bi bi-broadcast me-2"></i>ASHER-LINK ADMIN</span>
+            <div class="d-flex gap-2">
+                <button onclick="downloadReport()" class="btn btn-sm btn-outline-light"><i class="bi bi-file-pdf me-1"></i>Report</button>
+                <button onclick="logout()" class="btn btn-sm btn-danger"><i class="bi bi-power me-1"></i>Logout</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mb-5">
+    <div class="container pb-5">
+
+        <h5 class="section-title">ADVERTISING INFRASTRUCTURE</h5>
         <div class="row g-4 mb-5">
             <div class="col-lg-4">
-                <div class="glass-card stats-gradient p-4 h-100 d-flex flex-column justify-content-center">
-                    <span class="opacity-75 small text-uppercase fw-bold mb-2">Network Revenue (EST)</span>
-                    <h1 class="display-5 fw-bold mb-0" id="total-revenue">R 0.00</h1>
-                    <div class="mt-3 pt-3 border-top border-secondary">
-                        <span class="small text-secondary text-white-50"><i class="bi bi-info-circle"></i> Based on 1k Impression CPM cycles</span>
-                    </div>
+                <div class="glass-card p-4 bg-dark text-white h-100">
+                    <small class="text-uppercase opacity-50">Est. Revenue</small>
+                    <h2 class="display-6 fw-bold" id="total-revenue">R 0.00</h2>
+                    <canvas id="performanceChart" class="mt-3" height="150"></canvas>
                 </div>
             </div>
             <div class="col-lg-8">
-                <div class="glass-card p-4 h-100">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold m-0">Impression Distribution</h6>
-                        <span class="badge bg-light text-dark">Live Data</span>
-                    </div>
-                    <canvas id="performanceChart" height="100"></canvas>
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold mb-3">Deploy New Ad Campaign</h6>
+                    <form id="uploadForm">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="text" id="new_ad_id" class="form-control" placeholder="Client Name" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="url" id="new_target_url" class="form-control" placeholder="Target URL">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="file" id="new_file" class="form-control" accept="image/*" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" id="new_total_limit" class="form-control" placeholder="Total Limit" min="1">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" id="new_daily_limit" class="form-control" placeholder="Daily Limit" min="1">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" id="new_cpm_rate" class="form-control" placeholder="CPM Rate (R)" step="0.01" min="0.01" value="50.00">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">Upload Asset</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+        <div id="ad-list" class="row g-3 mb-5"></div>
 
-        <div class="glass-card p-4 mb-5">
-            <h6 class="fw-bold mb-4 border-bottom pb-3"><i class="bi bi-plus-lg me-2 text-primary"></i>Initialize New Campaign</h6>
-            <form id="uploadForm">
-                <div class="row g-4">
+        <hr class="my-5">
+
+        <h5 class="section-title">UNCAPPED WIFI PACKAGES</h5>
+        <div class="glass-card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Create Package</h6>
+            <form id="bundleForm">
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label small text-secondary fw-bold">Internal Campaign ID</label>
-                        <input type="text" id="new_ad_id" class="form-control" placeholder="CLIENT_NAME_01" required>
+                        <label class="small fw-bold">Active Period</label>
+                        <input type="text" id="pkg_period" class="form-control" placeholder="e.g. 1 Hour / 24 Hours" required>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label small text-secondary fw-bold">Conversion Link</label>
-                        <input type="url" id="new_target_url" class="form-control" placeholder="https://client-site.com">
+                    <div class="col-md-2">
+                        <label class="small fw-bold">Price (ZAR)</label>
+                        <input type="number" id="pkg_price" class="form-control" placeholder="0.00" step="0.01" required>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label small text-secondary fw-bold">Lifetime Quota</label>
-                        <input type="number" id="new_total_limit" class="form-control" placeholder="Total Views">
+                    <div class="col-md-2">
+                        <label class="small fw-bold">Bandwidth</label>
+                        <input type="text" id="pkg_speed" class="form-control" placeholder="e.g. 5Mbps" required>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label small text-secondary fw-bold">Daily Throttling</label>
-                        <input type="number" id="new_daily_limit" class="form-control" placeholder="Daily Cap">
-                    </div>
-                    <div class="col-md-9">
-                        <label class="form-label small text-secondary fw-bold">High-Res Asset</label>
-                        <input type="file" id="new_file" class="form-control" accept="image/*" required>
+                    <div class="col-md-2">
+                        <label class="small fw-bold">Quota Status</label>
+                        <input type="text" id="pkg_quota" class="form-control" value="Uncapped" readonly>
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">Launch Campaign</button>
+                        <div class="form-check form-switch mb-2 me-3">
+                            <input class="form-check-input" type="checkbox" id="pkg_voucher" checked>
+                            <label class="form-check-label small">Accept 1Voucher</label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Save Package</button>
                     </div>
                 </div>
             </form>
         </div>
 
-        <h5 class="fw-bold mb-4">Network Inventory</h5>
-        <div id="ad-list" class="row g-4">
+        <div class="row g-3" id="bundle-list"></div>
+
+        <hr class="my-5">
+
+        <h5 class="section-title">SYSTEM ANALYTICS</h5>
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6">
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold mb-3">Revenue Analytics</h6>
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
             </div>
+            <div class="col-lg-6">
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold mb-3">Package Performance</h6>
+                    <canvas id="packageChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="section-title">SYSTEM CONTROLS</h5>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="glass-card p-4 text-center">
+                    <i class="bi bi-arrow-clockwise text-primary fs-1 mb-3"></i>
+                    <h6 class="fw-bold">Refresh Data</h6>
+                    <button onclick="loadDashboard()" class="btn btn-outline-primary w-100">Sync Now</button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-4 text-center">
+                    <i class="bi bi-gear text-warning fs-1 mb-3"></i>
+                    <h6 class="fw-bold">System Health</h6>
+                    <button onclick="checkSystemHealth()" class="btn btn-outline-warning w-100">Check Status</button>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-4 text-center">
+                    <i class="bi bi-database text-success fs-1 mb-3"></i>
+                    <h6 class="fw-bold">Database Backup</h6>
+                    <button onclick="createBackup()" class="btn btn-outline-success w-100">Backup Now</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-    const API_BASE = "https://api.oxeansa.co.za/asherlink/system";
-    const DEFAULT_CPM = 50.00;
+    const API_BASE = "https://api.oxeansa.co.za/asherlink/admin";
+    const HOTSPOT_API = "https://api.oxeansa.co.za/asherlink/hotspot";
+    const SYSTEM_API = "https://api.oxeansa.co.za/asherlink/system";
+    const DEFAULT_CPM = 5.00;
     let adminToken = sessionStorage.getItem('adminToken');
-    let myChart;
+    let performanceChart, revenueChart, packageChart;
 
     if (adminToken) showDashboard();
 
@@ -152,7 +258,10 @@
             } else {
                 document.getElementById('login-error').style.display = 'block';
             }
-        } catch (err) { alert("Core API Connectivity Error"); }
+        } catch (err) {
+            alert("Core API Connectivity Error");
+            console.error(err);
+        }
     }
 
     function showDashboard() {
@@ -161,26 +270,41 @@
         loadDashboard();
     }
 
-    function logout() { sessionStorage.clear(); location.reload(); }
+    function logout() {
+        sessionStorage.clear();
+        location.reload();
+    }
 
     async function loadDashboard() {
         try {
-            const res = await fetch(`${API_BASE}/ads/active`);
-            if (res.status === 401) throw new Error();
-            const ads = await res.json();
-            renderCards(ads);
-            updateChart(ads);
+            // Load ads data
+            const adsRes = await fetch(`${SYSTEM_API}/ads/active`, {
+                headers: { 'X-Admin-Token': adminToken }
+            });
+            if (adsRes.status === 401) throw new Error('Unauthorized');
+            const ads = await adsRes.json();
+
+            // Load bundles data
+            const bundlesRes = await fetch(`${HOTSPOT_API}/bundles`);
+            const bundles = await bundlesRes.json();
+
+            renderAds(ads);
+            renderBundles(bundles);
+            updateCharts(ads, bundles);
             calculateGlobalRevenue(ads);
-        } catch (err) { logout(); }
+        } catch (err) {
+            console.error('Dashboard load error:', err);
+            if (err.message === 'Unauthorized') logout();
+        }
     }
 
-    function renderCards(ads) {
+    function renderAds(ads) {
         const container = document.getElementById('ad-list');
         container.innerHTML = '';
         ads.forEach(ad => {
             const earnings = (ad.impressions / 1000) * (ad.cpm_rate || DEFAULT_CPM);
             const progress = ad.total_limit ? (ad.impressions / ad.total_limit) * 100 : 0;
-            
+
             container.innerHTML += `
                 <div class="col-xl-4 col-md-6">
                     <div class="glass-card h-100 overflow-hidden">
@@ -196,22 +320,36 @@
                                 <h5 class="text-success fw-bold">R ${earnings.toFixed(2)}</h5>
                             </div>
                             <div class="row g-2 mb-3">
-                                <div class="col-6"><div class="p-2 bg-light rounded text-center small"><div class="text-secondary">Views</div><div class="fw-bold">${ad.impressions}</div></div></div>
-                                <div class="col-6"><div class="p-2 bg-light rounded text-center small"><div class="text-secondary">Daily</div><div class="fw-bold">${ad.daily_count || 0}/${ad.daily_limit || '∞'}</div></div></div>
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded text-center small">
+                                        <div class="text-secondary">Views</div>
+                                        <div class="fw-bold">${ad.impressions.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-2 bg-light rounded text-center small">
+                                        <div class="text-secondary">Daily</div>
+                                        <div class="fw-bold">${ad.daily_count || 0}/${ad.daily_limit || '∞'}</div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between small text-secondary mb-1">
                                     <span>Quota Progress</span>
                                     <span>${progress.toFixed(0)}%</span>
                                 </div>
-                                <div class="progress"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: ${progress}%"></div>
+                                </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" ${ad.active ? 'checked' : ''} onchange="toggleAd('${ad._id}', this.checked)">
                                     <label class="form-check-label small text-secondary">Active Status</label>
                                 </div>
-                                <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteAd('${ad._id}')"><i class="bi bi-trash3"></i></button>
+                                <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteAd('${ad._id}')">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -219,10 +357,39 @@
         });
     }
 
-    function updateChart(ads) {
+    function renderBundles(bundles) {
+        const container = document.getElementById('bundle-list');
+        container.innerHTML = '';
+
+        bundles.forEach(pkg => {
+            container.innerHTML += `
+                <div class="col-md-3">
+                    <div class="glass-card p-3 border-top border-primary border-4">
+                        <h5 class="fw-bold mb-1">${pkg.activePeriod}</h5>
+                        <div class="text-primary fw-bold fs-4">R ${pkg.price.toFixed(2)}</div>
+                        <div class="small text-muted mb-3">
+                            Speed: ${pkg.bandwidth} <br>
+                            Quota: ${pkg.quota} <br>
+                            Voucher: ${pkg.isVoucherAccepted ? 'Yes' : 'No'}
+                        </div>
+                        <button onclick="deleteBundle('${pkg._id}')" class="btn btn-sm btn-light w-100">
+                            <i class="bi bi-trash3 me-1"></i>Remove
+                        </button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function updateCharts(ads, bundles) {
+        updatePerformanceChart(ads);
+        updateRevenueChart(ads);
+        updatePackageChart(bundles);
+    }
+
+    function updatePerformanceChart(ads) {
         const ctx = document.getElementById('performanceChart').getContext('2d');
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
+        if (performanceChart) performanceChart.destroy();
+        performanceChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ads.map(a => a.ad_id),
@@ -233,7 +400,61 @@
                     borderRadius: 6
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { display: false } } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { grid: { display: false } } }
+            }
+        });
+    }
+
+    function updateRevenueChart(ads) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        if (revenueChart) revenueChart.destroy();
+
+        const revenueData = ads.map(ad => (ad.impressions / 1000) * (ad.cpm_rate || DEFAULT_CPM));
+
+        revenueChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ads.map(a => a.ad_id),
+                datasets: [{
+                    data: revenueData,
+                    backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+
+    function updatePackageChart(bundles) {
+        const ctx = document.getElementById('packageChart').getContext('2d');
+        if (packageChart) packageChart.destroy();
+
+        packageChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: bundles.map(b => b.activePeriod),
+                datasets: [{
+                    label: 'Package Prices',
+                    data: bundles.map(b => b.price),
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { grid: { display: false } } }
+            }
         });
     }
 
@@ -244,52 +465,173 @@
 
     // --- API Handlers ---
     async function toggleAd(id, status) {
-        await fetch(`${API_BASE}/ads/manage/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'X-Admin-Token': adminToken },
-            body: JSON.stringify({ active: status })
-        });
-        loadDashboard();
+        try {
+            await fetch(`${API_BASE}/ads/manage/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Token': adminToken
+                },
+                body: JSON.stringify({ active: status })
+            });
+            loadDashboard();
+        } catch (err) {
+            console.error('Toggle ad error:', err);
+            alert('Failed to update ad status');
+        }
     }
 
     async function deleteAd(id) {
         if (!confirm("Confirm removal of this campaign from the core network?")) return;
-        await fetch(`${API_BASE}/ads/manage/${id}`, {
-            method: 'DELETE',
-            headers: { 'X-Admin-Token': adminToken }
-        });
-        loadDashboard();
+        try {
+            await fetch(`${API_BASE}/ads/manage/${id}`, {
+                method: 'DELETE',
+                headers: { 'X-Admin-Token': adminToken }
+            });
+            loadDashboard();
+        } catch (err) {
+            console.error('Delete ad error:', err);
+            alert('Failed to delete ad');
+        }
     }
 
-    document.getElementById('uploadForm').onsubmit = async (e) => {
+    async function deleteBundle(id) {
+        if (!confirm("Delete this package?")) return;
+        try {
+            await fetch(`${API_BASE}/bundles/${id}`, {
+                method: 'DELETE',
+                headers: { 'X-Admin-Token': adminToken }
+            });
+            loadDashboard();
+        } catch (err) {
+            console.error('Delete bundle error:', err);
+            alert('Failed to delete package');
+        }
+    }
+
+    // --- Form Handlers ---
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('ad_id', document.getElementById('new_ad_id').value);
         formData.append('target_url', document.getElementById('new_target_url').value);
         formData.append('total_limit', document.getElementById('new_total_limit').value);
         formData.append('daily_limit', document.getElementById('new_daily_limit').value);
+        formData.append('cpm_rate', document.getElementById('new_cpm_rate').value);
         formData.append('file', document.getElementById('new_file').files[0]);
 
-        const res = await fetch(`${API_BASE}/ads/create`, {
-            method: 'POST',
-            headers: { 'X-Admin-Token': adminToken },
-            body: formData
-        });
+        try {
+            const res = await fetch(`${API_BASE}/ads/create`, {
+                method: 'POST',
+                headers: { 'X-Admin-Token': adminToken },
+                body: formData
+            });
 
-        if (res.ok) { alert("Initialization Successful"); location.reload(); }
-        else { alert("Internal Error: Operation Cancelled"); }
-    };
+            if (res.ok) {
+                alert("Campaign initialization successful");
+                document.getElementById('uploadForm').reset();
+                loadDashboard();
+            } else {
+                const error = await res.json();
+                alert(`Error: ${error.message || 'Operation failed'}`);
+            }
+        } catch (err) {
+            console.error('Upload error:', err);
+            alert('Upload failed - check network connection');
+        }
+    });
 
+    document.getElementById('bundleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const bundleData = {
+            activePeriod: document.getElementById('pkg_period').value,
+            price: parseFloat(document.getElementById('pkg_price').value),
+            bandwidth: document.getElementById('pkg_speed').value,
+            quota: document.getElementById('pkg_quota').value,
+            isVoucherAccepted: document.getElementById('pkg_voucher').checked
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/bundles`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Token': adminToken
+                },
+                body: JSON.stringify(bundleData)
+            });
+
+            if (res.ok) {
+                alert("Package added successfully");
+                document.getElementById('bundleForm').reset();
+                loadDashboard();
+            } else {
+                const error = await res.json();
+                alert(`Error: ${error.message || 'Failed to add package'}`);
+            }
+        } catch (err) {
+            console.error('Bundle creation error:', err);
+            alert('Failed to create package');
+        }
+    });
+
+    // --- Utility Functions ---
     async function downloadReport() {
-        const res = await fetch(`${API_BASE}/ads/report`, { headers: { 'X-Admin-Token': adminToken } });
-        if (!res.ok) return;
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `AsherLink_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-        a.click();
+        try {
+            const res = await fetch(`${API_BASE}/ads/report`, {
+                headers: { 'X-Admin-Token': adminToken }
+            });
+            if (!res.ok) {
+                alert('Failed to generate report');
+                return;
+            }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `AsherLink_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Report download error:', err);
+            alert('Failed to download report');
+        }
     }
+
+    async function checkSystemHealth() {
+        try {
+            const res = await fetch(`${API_BASE}/health`, {
+                headers: { 'X-Admin-Token': adminToken }
+            });
+            const health = await res.json();
+            alert(`System Status: ${health.status}\nUptime: ${health.uptime}\nDatabase: ${health.database}`);
+        } catch (err) {
+            console.error('Health check error:', err);
+            alert('Health check failed');
+        }
+    }
+
+    async function createBackup() {
+        if (!confirm("Create database backup? This may take a few minutes.")) return;
+        try {
+            const res = await fetch(`${API_BASE}/backup`, {
+                method: 'POST',
+                headers: { 'X-Admin-Token': adminToken }
+            });
+            const result = await res.json();
+            alert(`Backup ${result.success ? 'completed' : 'failed'}: ${result.message}`);
+        } catch (err) {
+            console.error('Backup error:', err);
+            alert('Backup failed');
+        }
+    }
+
+    // Initialize dashboard on load
+    document.addEventListener('DOMContentLoaded', function() {
+        if (adminToken) {
+            showDashboard();
+        }
+    });
 </script>
 </body>
 </html>

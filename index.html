@@ -81,6 +81,14 @@
         .text-warning {
             color: var(--warning) !important;
         }
+        .form-control.is-valid {
+            border-color: var(--success);
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+        }
+        .form-control.is-invalid {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -185,6 +193,55 @@
         </div>
 
         <div class="row g-3" id="bundle-list"></div>
+
+        <hr class="my-5">
+
+        <h5 class="section-title">LOCAL TOKENS</h5>
+        <div class="glass-card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Create Local Token</h6>
+            <form id="tokenForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Token PIN</label>
+                        <input type="text" id="token_pin" class="form-control" placeholder="e.g. 123456" maxlength="15" minlength="3" pattern="[A-Za-z0-9]+" required>
+                        <div class="form-text">3-15 alphanumeric characters only</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small fw-bold">Token Value (ZAR)</label>
+                        <input type="number" id="token_amount" class="form-control" placeholder="50.00" step="0.01" min="0.01" required>
+                        <div class="form-text">Amount to credit when redeemed</div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle me-2"></i>Create Token
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="glass-card p-4 mb-4">
+            <h6 class="fw-bold mb-3">Token Management</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" id="search_token" class="form-control" placeholder="Search tokens...">
+                </div>
+                <div class="col-md-6">
+                    <button onclick="loadTokens()" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                    <button onclick="loadTokens()" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div id="token-list" class="mt-3">
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-ticket-perforated fs-1 mb-2"></i>
+                    <p>Click "Search" to load available tokens</p>
+                </div>
+            </div>
+        </div>
 
         <hr class="my-5">
 
@@ -575,6 +632,62 @@
         }
     });
 
+    document.getElementById('tokenForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const tokenData = {
+            pin: document.getElementById('token_pin').value.trim(),
+            amount: parseFloat(document.getElementById('token_amount').value)
+        };
+
+        // Validate PIN format
+        if (tokenData.pin.length < 3 || tokenData.pin.length > 15) {
+            alert('Token PIN must be 3-15 characters long');
+            document.getElementById('token_pin').focus();
+            return;
+        }
+
+        // Validate amount
+        if (isNaN(tokenData.amount) || tokenData.amount <= 0) {
+            alert('Please enter a valid amount greater than 0');
+            document.getElementById('token_amount').focus();
+            return;
+        }
+
+        // Show loading state
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Creating...';
+        submitBtn.disabled = true;
+
+        try {
+            const res = await fetch(`${SYSTEM_API}/tokens/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Token': adminToken
+                },
+                body: JSON.stringify(tokenData)
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                alert(`Token "${tokenData.pin}" created successfully!\nValue: R${tokenData.amount.toFixed(2)}`);
+                document.getElementById('tokenForm').reset();
+                loadTokens(); // Refresh token list
+            } else {
+                const error = await res.json();
+                alert(`Error: ${error.message || 'Failed to create token'}`);
+            }
+        } catch (err) {
+            console.error('Token creation error:', err);
+            alert('Failed to create token. Please check your connection.');
+        } finally {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
     // --- Utility Functions ---
     async function downloadReport() {
         try {
@@ -626,10 +739,65 @@
         }
     }
 
+    async function loadTokens() {
+        const searchTerm = document.getElementById('search_token').value.trim();
+        const tokenList = document.getElementById('token-list');
+
+        try {
+            // For now, we'll show a placeholder since we don't have a list tokens endpoint
+            // In a real implementation, you'd call an API to get tokens
+            tokenList.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Token search functionality will be available once the backend API is implemented.
+                    <br><small class="text-muted">Created tokens can be redeemed by users through the main application.</small>
+                </div>
+            `;
+
+            if (searchTerm) {
+                tokenList.innerHTML += `
+                    <div class="mt-3">
+                        <strong>Search Results for "${searchTerm}":</strong>
+                        <p class="text-muted mb-0">No tokens found matching your search.</p>
+                    </div>
+                `;
+            }
+        } catch (err) {
+            console.error('Token load error:', err);
+            tokenList.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Failed to load tokens. Please try again.
+                </div>
+            `;
+        }
+    }
+
     // Initialize dashboard on load
     document.addEventListener('DOMContentLoaded', function() {
         if (adminToken) {
             showDashboard();
+        }
+
+        // Add real-time validation for token PIN
+        const tokenPinInput = document.getElementById('token_pin');
+        if (tokenPinInput) {
+            tokenPinInput.addEventListener('input', function(e) {
+                const value = e.target.value;
+                const isValid = /^[A-Za-z0-9]{3,15}$/.test(value);
+                
+                if (value.length > 0) {
+                    if (isValid) {
+                        e.target.classList.remove('is-invalid');
+                        e.target.classList.add('is-valid');
+                    } else {
+                        e.target.classList.remove('is-valid');
+                        e.target.classList.add('is-invalid');
+                    }
+                } else {
+                    e.target.classList.remove('is-valid', 'is-invalid');
+                }
+            });
         }
     });
 </script>

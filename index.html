@@ -187,6 +187,7 @@
             <p class="text-muted small mb-4">Provide management credentials to continue</p>
             <input type="password" id="admin_password" class="form-control form-isp mb-3 text-center"
                 placeholder="Access Token">
+            <div id="login-error" class="text-danger small mb-2" style="display:none;">Invalid credentials</div>
             <button onclick="attemptLogin()" class="btn-isp w-100">Authorize Access</button>
         </div>
     </div>
@@ -199,10 +200,10 @@
             </div>
 
             <nav>
-                <a href="#" class="nav-link-custom active"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a>
-                <a href="#ads" class="nav-link-custom"><i class="bi bi-megaphone me-3"></i> Ad Inventory</a>
-                <a href="#packages" class="nav-link-custom"><i class="bi bi-wifi me-3"></i> Wi-Fi Bundles</a>
-                <a href="#tokens" class="nav-link-custom"><i class="bi bi-ticket-perforated me-3"></i> Local Tokens</a>
+                <a href="#" class="nav-link-custom active" data-target="dashboard"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a>
+                <a href="#ads" class="nav-link-custom" data-target="ads"><i class="bi bi-megaphone me-3"></i> Ad Inventory</a>
+                <a href="#packages" class="nav-link-custom" data-target="packages"><i class="bi bi-wifi me-3"></i> Wi-Fi Bundles</a>
+                <a href="#tokens" class="nav-link-custom" data-target="tokens"><i class="bi bi-ticket-perforated me-3"></i> Local Tokens</a>
                 <div class="mt-5 pt-5">
                     <a href="javascript:logout()" class="nav-link-custom text-danger"><i class="bi bi-power me-3"></i>
                         System Logout</a>
@@ -248,7 +249,7 @@
                         </div>
 
                         <div class="collapse mb-4" id="adFormCollapse">
-                            <form id="adForm" class="p-4 bg-light rounded-4">
+                            <form id="uploadForm" class="p-4 bg-light rounded-4">
                                 <div class="row g-3">
                                     <div class="col-md-4"><input type="text" id="new_ad_id"
                                             class="form-control form-isp" placeholder="Client Name"></div>
@@ -260,12 +261,12 @@
                                             class="form-control form-isp" placeholder="Total Limit"></div>
                                     <div class="col-md-3"><input type="number" id="new_daily_limit"
                                             class="form-control form-isp" placeholder="Daily Limit"></div>
-                                    <div class="col-md-3"><input type="number" id="new_cpm"
+                                        <div class="col-md-3"><input type="number" id="new_cpm"
                                             class="form-control form-isp" value="50.00"></div>
-                                    <div class="col-md-3"><button type="submit" class="btn btn-isp w-100">Deploy
+                                        <div class="col-md-3"><button type="submit" class="btn btn-isp w-100">Deploy
                                             Asset</button></div>
                                 </div>
-                            </form>
+                                    </form>
                         </div>
 
                         <div id="ad-list" class="row g-4">
@@ -277,9 +278,56 @@
             <div class="row" id="packages">
                 <div class="col-12">
                     <div class="stat-card">
-                        <h5 class="fw-bold mb-4">Service Packages (Uncapped)</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0">Service Packages (Uncapped)</h5>
+                            <button class="btn btn-isp btn-sm" data-bs-toggle="collapse" data-bs-target="#bundleFormCollapse">
+                                <i class="bi bi-plus-lg me-1"></i> New Package
+                            </button>
+                        </div>
+                        <div class="collapse mb-3" id="bundleFormCollapse">
+                            <form id="bundleForm" class="p-3 bg-light rounded-3">
+                                <div class="row g-2">
+                                    <div class="col-md-3"><input type="text" id="pkg_period" class="form-control form-isp" placeholder="Active Period"></div>
+                                    <div class="col-md-2"><input type="number" id="pkg_price" class="form-control form-isp" placeholder="Price" step="0.01"></div>
+                                    <div class="col-md-2"><input type="text" id="pkg_speed" class="form-control form-isp" placeholder="Bandwidth"></div>
+                                    <div class="col-md-2"><input type="text" id="pkg_quota" class="form-control form-isp" value="Uncapped"></div>
+                                    <div class="col-md-3 d-flex align-items-end"><div class="form-check form-switch mb-2 me-3"><input class="form-check-input" type="checkbox" id="pkg_voucher" checked><label class="form-check-label small">Accept 1Voucher</label></div><button type="submit" class="btn btn-success w-100">Save Package</button></div>
+                                </div>
+                            </form>
+                        </div>
                         <div id="bundle-list" class="row g-3">
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Local Tokens Section -->
+            <div class="row mt-4" id="tokens">
+                <div class="col-12">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0">Local Tokens</h5>
+                            <button class="btn btn-isp btn-sm" data-bs-toggle="collapse" data-bs-target="#tokenCreateCollapse"><i class="bi bi-plus-lg me-1"></i>Create Token</button>
+                        </div>
+
+                        <div class="collapse mb-3" id="tokenCreateCollapse">
+                            <form id="tokenForm" class="p-3 bg-light rounded-3">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-md-4"><input type="text" id="token_pin" class="form-control form-isp" placeholder="Token PIN (3-15)" maxlength="15"></div>
+                                    <div class="col-md-4"><input type="number" id="token_amount" class="form-control form-isp" placeholder="Amount" step="0.01"></div>
+                                    <div class="col-md-4"><button type="submit" class="btn btn-success w-100">Create Token</button></div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="row g-2">
+                                <div class="col-md-6"><input type="text" id="search_token" class="form-control" placeholder="Search tokens..."></div>
+                                <div class="col-md-6 d-flex gap-2"><button onclick="loadTokens()" class="btn btn-outline-primary">Search</button><button onclick="loadTokens()" class="btn btn-outline-secondary">Refresh</button></div>
+                            </div>
+                        </div>
+
+                        <div id="token-list" class="mt-3 text-center text-muted py-4"><i class="bi bi-ticket-perforated fs-1 mb-2"></i><p>Click "Search" to load available tokens</p></div>
                     </div>
                 </div>
             </div>
@@ -308,6 +356,7 @@
                 if (res.ok && data.token) {
                     sessionStorage.setItem('adminToken', data.token);
                     adminToken = data.token;
+                    document.getElementById('login-error').style.display = 'none';
                     showDashboard();
                 } else {
                     document.getElementById('login-error').style.display = 'block';
@@ -337,22 +386,17 @@
                 });
                 if (adsRes.status === 401) throw new Error('Unauthorized');
                 const ads = await adsRes.json();
+                    // Load analytics summary (use adminToken)
+                    const summaryRes = await safeFetch(`${API_BASE}/analytics/summary`, { headers: { 'X-Admin-Token': adminToken } }, { ok: false });
+                    const summary = summaryRes && summaryRes.ok ? await summaryRes.json() : { total_revenue: 0 };
+                    document.getElementById('total-revenue').innerText = `R ${Number(summary.total_revenue || 0).toLocaleString()}`;
 
-                const summaryRes = await fetch(`${API_BASE}/analytics/summary`, {
-                    headers: { 'X-Admin-Token': token }
-                });
-                const summary = await summaryRes.json();
-                document.getElementById('total-revenue').innerText = `R ${summary.total_revenue.toLocaleString()}`;
+                    // Load bundles data
+                    const bundlesRes = await safeFetch(`${HOTSPOT_API}/bundles`, {}, { ok: false });
+                    const bundles = bundlesRes && bundlesRes.ok ? await bundlesRes.json() : [];
 
-
-                // Load bundles data
-                const bundlesRes = await fetch(`${HOTSPOT_API}/bundles`);
-                const bundles = await bundlesRes.json();
-
-                const distRes = await fetch(`${API_BASE}/analytics/distribution`, {
-                    headers: { 'X-Admin-Token': token }
-                });
-                const distData = await distRes.json();
+                    const distRes = await safeFetch(`${API_BASE}/analytics/distribution`, { headers: { 'X-Admin-Token': adminToken } }, { ok: false });
+                    const distData = distRes && distRes.ok ? await distRes.json() : { labels: [], datasets: [] };
 
                 // 3. Render Advanced Doughnut Chart
                 renderRevenueChart(distData);
@@ -366,6 +410,43 @@
                 if (err.message === 'Unauthorized') logout();
             }
         }
+
+            // Safe fetch wrapper with fallback
+            async function safeFetch(url, options = {}, fallback = null) {
+                try {
+                    const resp = await fetch(url, options);
+                    return resp;
+                } catch (err) {
+                    console.error('safeFetch failed for', url, err);
+                    return fallback;
+                }
+            }
+
+            // Initialize side navigation behavior
+            function initSideNav() {
+                const links = document.querySelectorAll('.nav-link-custom');
+                links.forEach(l => {
+                    l.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        links.forEach(x => x.classList.remove('active'));
+                        l.classList.add('active');
+                        const target = l.getAttribute('data-target');
+                        if (!target || target === 'dashboard') {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            return;
+                        }
+                        const el = document.getElementById(target);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                });
+
+                // If hash present on load, navigate
+                if (location.hash) {
+                    const hash = location.hash.replace('#', '');
+                    const el = document.getElementById(hash);
+                    if (el) el.scrollIntoView();
+                }
+            }
 
         function renderRevenueChart(data) {
             const ctx = document.getElementById('performanceChart').getContext('2d');
@@ -602,7 +683,7 @@
             formData.append('target_url', document.getElementById('new_target_url').value);
             formData.append('total_limit', document.getElementById('new_total_limit').value);
             formData.append('daily_limit', document.getElementById('new_daily_limit').value);
-            formData.append('cpm_rate', document.getElementById('new_cpm_rate').value);
+            formData.append('cpm_rate', document.getElementById('new_cpm').value);
             formData.append('file', document.getElementById('new_file').files[0]);
 
             try {
@@ -806,6 +887,8 @@
             if (adminToken) {
                 showDashboard();
             }
+            // Initialize side navigation
+            initSideNav();
 
             // Add real-time validation for token PIN
             const tokenPinInput = document.getElementById('token_pin');

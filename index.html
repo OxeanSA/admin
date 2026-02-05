@@ -13,7 +13,8 @@
 
     <style>
         :root {
-            --sidebar-width: 260px;
+            --sidebar-width: 72px;
+            --sidebar-expanded-width: 260px;
             --brand-primary: #0061ff;
             --brand-secondary: #60a5fa;
             --surface: #ffffff;
@@ -36,18 +37,31 @@
             width: var(--sidebar-width);
             height: 100vh;
             position: fixed;
-            left: 0;
-            top: 0;
-            background: var(--sidebar-bg);
+            left: 16px;
+            top: 20px;
+            background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.95));
             color: white;
-            padding: 1.5rem;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(2,6,23,0.4);
             z-index: 1000;
+            transition: width 220ms ease, left 220ms ease;
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: var(--sidebar-expanded-width);
+            left: 8px;
         }
 
         .main-content {
-            margin-left: var(--sidebar-width);
+            margin-left: calc(var(--sidebar-width) + 40px);
             padding: 2rem;
-            transition: all 0.3s ease;
+            transition: margin-left 220ms ease;
+        }
+
+        .sidebar:hover ~ .main-content {
+            margin-left: calc(var(--sidebar-expanded-width) + 40px);
         }
 
         /* Enterprise Components */
@@ -81,19 +95,26 @@
         }
 
         .nav-link-custom {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
             display: flex;
             align-items: center;
-            padding: 0.8rem 1rem;
-            border-radius: 10px;
+            justify-content: center;
+            padding: 0.65rem 0.55rem;
+            border-radius: 8px;
             margin-bottom: 0.5rem;
-            transition: all 0.2s;
+            transition: background 160ms ease, color 160ms ease, padding 160ms ease;
+            white-space: nowrap;
         }
+
+        .nav-link-custom .nav-text { display: none; }
+
+        .sidebar:hover .nav-link-custom { justify-content: flex-start; padding: 0.65rem 1rem; }
+        .sidebar:hover .nav-link-custom .nav-text { display: inline-block; margin-left: 12px; font-weight:600; }
 
         .nav-link-custom:hover,
         .nav-link-custom.active {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
             color: white;
         }
 
@@ -200,13 +221,12 @@
             </div>
 
             <nav>
-                <a href="#" class="nav-link-custom active" data-target="dashboard"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a>
-                <a href="#ads" class="nav-link-custom" data-target="ads"><i class="bi bi-megaphone me-3"></i> Ad Inventory</a>
-                <a href="#packages" class="nav-link-custom" data-target="packages"><i class="bi bi-wifi me-3"></i> Wi-Fi Bundles</a>
-                <a href="#tokens" class="nav-link-custom" data-target="tokens"><i class="bi bi-ticket-perforated me-3"></i> Local Tokens</a>
+                <a href="#" class="nav-link-custom active" data-target="dashboard"><i class="bi bi-grid-1x2-fill fs-4"></i><span class="nav-text"> Dashboard</span></a>
+                <a href="#ads" class="nav-link-custom" data-target="ads"><i class="bi bi-megaphone fs-4"></i><span class="nav-text"> Ad Inventory</span></a>
+                <a href="#packages" class="nav-link-custom" data-target="packages"><i class="bi bi-wifi fs-4"></i><span class="nav-text"> Wi-Fi Bundles</span></a>
+                <a href="#tokens" class="nav-link-custom" data-target="tokens"><i class="bi bi-ticket-perforated fs-4"></i><span class="nav-text"> Local Tokens</span></a>
                 <div class="mt-5 pt-5">
-                    <a href="javascript:logout()" class="nav-link-custom text-danger"><i class="bi bi-power me-3"></i>
-                        System Logout</a>
+                    <a href="javascript:logout()" class="nav-link-custom text-danger"><i class="bi bi-power fs-4"></i><span class="nav-text"> System Logout</span></a>
                 </div>
             </nav>
         </div>

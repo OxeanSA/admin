@@ -3,464 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asher-Link | Core Admin</title>
+    <title>Asher-Link | ISP Management Core</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-light: #60a5fa;
-            --dark: #1e293b;
-            --bg: #f0f9ff;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --accent: #06b6d4;
+            --sidebar-width: 260px;
+            --brand-primary: #0061ff;
+            --brand-secondary: #60a5fa;
+            --surface: #ffffff;
+            --bg-canvas: #f4f7fa;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --sidebar-bg: #0f172a;
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
-        
-        * {
-            border-radius: 20px !important;
-        }
-        
-        html {
-            scroll-behavior: smooth;
-        }
-        
+
         body { 
-            background: linear-gradient(135deg, var(--bg) 0%, #dbeafe 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--dark);
-            font-weight: 500;
+            background-color: var(--bg-canvas);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
         }
-        
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #e0e7ff;
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.12);
+
+        /* Sidebar Architecture */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 1.5rem;
+            z-index: 1000;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
         }
-        
-        .glass-card:hover {
-            box-shadow: 0 12px 48px rgba(59, 130, 246, 0.18);
-            transform: translateY(-4px);
-            border-color: var(--primary);
-        }
-        
-        .nav-custom { 
-            background: linear-gradient(135deg, var(--dark) 0%, #334155 100%);
-            padding: 1.2rem 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            border-radius: 0 0 30px 30px;
-        }
-        
-        .navbar-brand {
-            font-size: 1.4rem !important;
-            font-weight: 800 !important;
-            letter-spacing: 0.5px;
-        }
-        
-        .ad-img { 
-            height: 140px;
-            object-fit: cover;
-            border-radius: 20px;
-        }
-        
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            border: none;
+
+        /* Enterprise Components */
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid #e2e8f0;
             border-radius: 16px;
-            font-weight: 700;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-isp {
+            background: var(--brand-primary);
+            color: white;
+            border-radius: 10px;
             padding: 0.6rem 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-            color: white;
-        }
-        
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+            font-weight: 600;
             border: none;
-            border-radius: 16px;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
         }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+
+        .btn-isp:hover {
+            background: #0056e0;
+            box-shadow: 0 4px 12px rgba(0, 97, 255, 0.3);
         }
-        
-        .btn-outline-primary {
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            border-radius: 16px;
-            font-weight: 700;
+
+        .nav-link-custom {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
         }
-        
-        .btn-outline-primary:hover {
-            background: var(--primary);
-            border-color: var(--primary);
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            transform: translateY(-2px);
         }
-        
-        .btn-danger {
-            border-radius: 16px;
+
+        /* Dashboard Specifics */
+        .badge-isp {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            text-transform: uppercase;
         }
-        
-        #login-overlay { 
+
+        .badge-success { background: #dcfce7; color: #15803d; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+
+        .form-isp {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.75rem;
+            background: #f8fafc;
+        }
+
+        #login-overlay {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
-            z-index: 10000;
+            background: #0f172a;
+            z-index: 10001;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(8px);
         }
-        
-        .section-title { 
-            border-left: 6px solid var(--primary);
-            padding-left: 20px;
-            font-weight: 800;
-            margin-bottom: 25px;
-            font-size: 1.2rem;
-            color: var(--dark);
-        }
-        
-        .badge-active {
-            background-color: linear-gradient(135deg, var(--success), #16a34a);
-            color: white;
-            border-radius: 12px;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-        }
-        
-        .badge-inactive {
-            background-color: linear-gradient(135deg, var(--danger), #dc2626);
-            color: white;
-            border-radius: 12px;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-        }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
-            border-radius: 20px;
-            font-weight: 700;
-        }
-        
-        .progress {
-            border-radius: 20px;
-            background-color: #e0e7ff;
-            height: 12px;
-        }
-        
-        .form-control {
-            border-radius: 16px;
-            border: 2px solid #e0e7ff;
-            padding: 0.8rem 1.2rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
+
+        .login-card {
             background: white;
+            width: 400px;
+            padding: 3rem;
+            border-radius: 24px;
+            text-align: center;
         }
-        
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+
+        .header-action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
-        
-        .form-check-input {
-            width: 1.4rem;
-            height: 1.4rem;
-            border-radius: 8px;
-            border: 2px solid #e0e7ff;
-            cursor: pointer;
+
+        .isp-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
         }
-        
-        .form-check-input:checked {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+
+        .isp-table tr {
+            background: white;
+            border-radius: 12px;
         }
-        
-        .text-success {
-            color: var(--success) !important;
-            font-weight: 700;
+
+        .isp-table td {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
         }
-        
-        .text-danger {
-            color: var(--danger) !important;
-            font-weight: 700;
-        }
-        
-        .text-warning {
-            color: var(--warning) !important;
-            font-weight: 700;
-        }
-        
-        .text-primary {
-            color: var(--primary) !important;
-            font-weight: 700;
-        }
-        
-        .form-control.is-valid {
-            border-color: var(--success);
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
-        }
-        
-        .form-control.is-invalid {
-            border-color: var(--danger);
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
-        }
-        
-        canvas {
-            border-radius: 20px;
-        }
-        
-        .display-6 {
-            font-weight: 800;
-            font-size: 2.5rem;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 800;
-            color: var(--dark);
-        }
-        
-        .bg-dark {
-            background: linear-gradient(135deg, #1e293b, #334155) !important;
-        }
-        
-        input::placeholder {
-            color: #94a3b8;
-            font-weight: 500;
-        }
-        
-        /* Additional bubbly effects */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .glass-card.floating {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        /* Smooth transitions */
-        * {
-            transition: all 0.2s ease;
-        }
+
+        .isp-table td:first-child { border-left: 1px solid #e2e8f0; border-radius: 12px 0 0 12px; }
+        .isp-table td:last-child { border-right: 1px solid #e2e8f0; border-radius: 0 12px 12px 0; }
+
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
-    <div class="glass-card p-5 text-center" style="width: 400px;">
-        <i class="bi bi-cpu-fill text-primary fs-1 mb-3"></i>
-        <h4 class="fw-bold">Core Access</h4>
-        <input type="password" id="admin_password" class="form-control my-3 text-center" placeholder="Admin Token">
-        <div id="login-error" class="text-danger small mb-2" style="display: none;">Invalid credentials</div>
-        <button onclick="attemptLogin()" class="btn btn-primary w-100">Unlock System</button>
+    <div class="login-card shadow-2xl">
+        <img src="https://api.oxeansa.co.za/static/logo.png" alt="AsherLink" style="height: 50px; margin-bottom: 20px;">
+        <h4 class="fw-bold mb-1">Infrastructure Login</h4>
+        <p class="text-muted small mb-4">Provide management credentials to continue</p>
+        <input type="password" id="admin_password" class="form-control form-isp mb-3 text-center" placeholder="Access Token">
+        <button onclick="attemptLogin()" class="btn-isp w-100">Authorize Access</button>
     </div>
 </div>
 
 <div id="dashboard-content" style="display:none;">
-    <nav class="nav-custom mb-4 shadow">
-        <div class="container d-flex justify-content-between align-items-center">
-            <span class="navbar-brand text-white fw-bold"><i class="bi bi-broadcast me-2"></i>ASHER-LINK ADMIN</span>
-            <div class="d-flex gap-2">
-                <button onclick="downloadReport()" class="btn btn-sm btn-outline-light"><i class="bi bi-file-pdf me-1"></i>Report</button>
-                <button onclick="logout()" class="btn btn-sm btn-danger"><i class="bi bi-power me-1"></i>Logout</button>
-            </div>
+    <div class="sidebar shadow">
+        <div class="mb-5 d-flex align-items-center">
+            <i class="bi bi-cpu-fill fs-3 me-2 text-primary"></i>
+            <span class="fs-5 fw-bold">ASHER-CORE</span>
         </div>
-    </nav>
+        
+        <nav>
+            <a href="#" class="nav-link-custom active"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a>
+            <a href="#ads" class="nav-link-custom"><i class="bi bi-megaphone me-3"></i> Ad Inventory</a>
+            <a href="#packages" class="nav-link-custom"><i class="bi bi-wifi me-3"></i> Wi-Fi Bundles</a>
+            <a href="#tokens" class="nav-link-custom"><i class="bi bi-ticket-perforated me-3"></i> Local Tokens</a>
+            <div class="mt-5 pt-5">
+                <a href="javascript:logout()" class="nav-link-custom text-danger"><i class="bi bi-power me-3"></i> System Logout</a>
+            </div>
+        </nav>
+    </div>
 
-    <div class="container pb-5">
+    <div class="main-content">
+        <div class="header-action-bar">
+            <div>
+                <h3 class="fw-bold mb-0">Network Operations</h3>
+                <p class="text-muted small">Real-time status of Asher-Link infrastructure</p>
+            </div>
+            <button onclick="loadDashboard()" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Node
+            </button>
+        </div>
 
-        <h5 class="section-title">ADVERTISING INFRASTRUCTURE</h5>
         <div class="row g-4 mb-5">
-            <div class="col-lg-4">
-                <div class="glass-card p-4 bg-dark text-white h-100">
-                    <small class="text-uppercase opacity-50">Est. Revenue</small>
-                    <h2 class="display-6 fw-bold" id="total-revenue">R 0.00</h2>
-                    <canvas id="performanceChart" class="mt-3" height="150"></canvas>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small fw-bold text-uppercase">Total Ad Revenue</span>
+                    <h2 class="fw-800 mt-2 mb-0" id="total-revenue">R 0.00</h2>
+                    <div class="text-success small mt-2"><i class="bi bi-graph-up"></i> Live Performance</div>
                 </div>
             </div>
-            <div class="col-lg-8">
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold mb-3">Deploy New Ad Campaign</h6>
-                    <form id="adForm">
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <input type="text" id="new_ad_id" class="form-control" placeholder="Client Name" required>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="url" id="new_target_url" class="form-control" placeholder="Target URL">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="file" id="new_file" class="form-control" accept="image/*" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="number" id="new_total_limit" class="form-control" placeholder="Total Limit" min="1">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="number" id="new_daily_limit" class="form-control" placeholder="Daily Limit" min="1">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="number" id="new_cpm_rate" class="form-control" placeholder="CPM Rate (R)" step="0.01" min="0.01" value="50.00">
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary w-100">Upload Asset</button>
-                            </div>
-                        </div>
-                    </form>
+            <div class="col-md-9">
+                <div class="stat-card">
+                    <canvas id="performanceChart" height="60"></canvas>
                 </div>
             </div>
         </div>
-        <div id="ad-list" class="row g-3 mb-5"></div>
 
-        <hr class="my-5">
-
-        <h5 class="section-title">UNCAPPED WIFI PACKAGES</h5>
-        <div class="glass-card p-4 mb-4">
-            <h6 class="fw-bold mb-3">Create Package</h6>
-            <form id="bundleForm">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="small fw-bold">Active Period</label>
-                        <input type="text" id="pkg_period" class="form-control" placeholder="e.g. 1 Hour / 24 Hours" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="small fw-bold">Price (ZAR)</label>
-                        <input type="number" id="pkg_price" class="form-control" placeholder="0.00" step="0.01" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="small fw-bold">Bandwidth</label>
-                        <input type="text" id="pkg_speed" class="form-control" placeholder="e.g. 5Mbps" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="small fw-bold">Quota Status</label>
-                        <input type="text" id="pkg_quota" class="form-control" value="Uncapped" readonly>
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <div class="form-check form-switch mb-2 me-3">
-                            <input class="form-check-input" type="checkbox" id="pkg_voucher" checked>
-                            <label class="form-check-label small">Accept 1Voucher</label>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">Save Package</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div class="row g-3" id="bundle-list"></div>
-
-        <hr class="my-5">
-
-        <h5 class="section-title">LOCAL TOKENS</h5>
-        <div class="glass-card p-4 mb-4">
-            <h6 class="fw-bold mb-3">Create Local Token</h6>
-            <form id="tokenForm">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Token PIN</label>
-                        <input type="text" id="token_pin" class="form-control" placeholder="e.g. 123456" maxlength="15" minlength="3" pattern="[A-Za-z0-9]+" required>
-                        <div class="form-text">3-15 alphanumeric characters only</div>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="small fw-bold">Token Value (ZAR)</label>
-                        <input type="number" id="token_amount" class="form-control" placeholder="50.00" step="0.01" min="0.01" required>
-                        <div class="form-text">Amount to credit when redeemed</div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-plus-circle me-2"></i>Create Token
+        <div class="row mb-5" id="ads">
+            <div class="col-12">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold m-0">Campaign Orchestration</h5>
+                        <button class="btn btn-isp btn-sm" data-bs-toggle="collapse" data-bs-target="#adFormCollapse">
+                            <i class="bi bi-plus-lg me-1"></i> New Campaign
                         </button>
                     </div>
-                </div>
-            </form>
-        </div>
+                    
+                    <div class="collapse mb-4" id="adFormCollapse">
+                        <form id="adForm" class="p-4 bg-light rounded-4">
+                            <div class="row g-3">
+                                <div class="col-md-4"><input type="text" id="new_ad_id" class="form-control form-isp" placeholder="Client Name"></div>
+                                <div class="col-md-4"><input type="url" id="new_target_url" class="form-control form-isp" placeholder="Destination URL"></div>
+                                <div class="col-md-4"><input type="file" id="new_file" class="form-control form-isp"></div>
+                                <div class="col-md-3"><input type="number" id="new_total_limit" class="form-control form-isp" placeholder="Total Limit"></div>
+                                <div class="col-md-3"><input type="number" id="new_daily_limit" class="form-control form-isp" placeholder="Daily Limit"></div>
+                                <div class="col-md-3"><input type="number" id="new_cpm" class="form-control form-isp" value="50.00"></div>
+                                <div class="col-md-3"><button type="submit" class="btn btn-isp w-100">Deploy Asset</button></div>
+                            </div>
+                        </form>
+                    </div>
 
-        <div class="glass-card p-4 mb-4">
-            <h6 class="fw-bold mb-3">Token Management</h6>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <input type="text" id="search_token" class="form-control" placeholder="Search tokens...">
-                </div>
-                <div class="col-md-6">
-                    <button onclick="loadTokens()" class="btn btn-outline-primary me-2">
-                        <i class="bi bi-search me-1"></i>Search
-                    </button>
-                    <button onclick="loadTokens()" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-                    </button>
-                </div>
-            </div>
-            <div id="token-list" class="mt-3">
-                <div class="text-center text-muted py-4">
-                    <i class="bi bi-ticket-perforated fs-1 mb-2"></i>
-                    <p>Click "Search" to load available tokens</p>
+                    <div id="ad-list" class="row g-4">
+                        </div>
                 </div>
             </div>
         </div>
 
-        <hr class="my-5">
-
-        <h5 class="section-title">SYSTEM ANALYTICS</h5>
-        <div class="row g-4 mb-5">
-            <div class="col-lg-6">
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold mb-3">Revenue Analytics</h6>
-                    <canvas id="revenueChart" height="200"></canvas>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold mb-3">Package Performance</h6>
-                    <canvas id="packageChart" height="200"></canvas>
+        <div class="row" id="packages">
+            <div class="col-12">
+                <div class="stat-card">
+                    <h5 class="fw-bold mb-4">Service Packages (Uncapped)</h5>
+                    <div id="bundle-list" class="row g-3">
+                        </div>
                 </div>
             </div>
         </div>
-
-        <h5 class="section-title">SYSTEM CONTROLS</h5>
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="glass-card p-4 text-center">
-                    <i class="bi bi-arrow-clockwise text-primary fs-1 mb-3"></i>
-                    <h6 class="fw-bold">Refresh Data</h6>
-                    <button onclick="loadDashboard()" class="btn btn-outline-primary w-100">Sync Now</button>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="glass-card p-4 text-center">
-                    <i class="bi bi-gear text-warning fs-1 mb-3"></i>
-                    <h6 class="fw-bold">System Health</h6>
-                    <button onclick="checkSystemHealth()" class="btn btn-outline-warning w-100">Check Status</button>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="glass-card p-4 text-center">
-                    <i class="bi bi-database text-success fs-1 mb-3"></i>
-                    <h6 class="fw-bold">Database Backup</h6>
-                    <button onclick="createBackup()" class="btn btn-outline-success w-100">Backup Now</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 

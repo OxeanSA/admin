@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Asher-Link | ISP Admin Terminal</title>
+    <title>Oxean SA | ISP Admin Terminal</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
@@ -12,181 +12,160 @@
     <link rel="stylesheet" type="text/css" href="css/main.css">
 
     <style>
-        /* SpaceX UI Extensions */
-        body { background-color: #000; color: #fff; font-family: 'Montserrat-Regular', sans-serif; height: 100vh; overflow: hidden; }
-        
-        .sidebar {
-            width: 260px; height: 100vh; position: fixed; left: 0; top: 0;
-            background: #000; border-right: 1px solid rgba(255,255,255,0.1);
-            padding: 30px 20px; z-index: 100;
+        /* Exact layout logic from your index.html */
+        html, body { overflow: hidden; height: 100vh; width: 100vw; font-family: 'Montserrat-Regular', sans-serif; background-color: #000; }
+
+        .main-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            padding: 20px;
         }
 
-        .main-content { margin-left: 260px; height: 100vh; overflow-y: auto; padding: 40px; background: #0a0a0a; }
+        /* The "Texture" and "Style" from your stat-cards */
+        .dash-content {
+            width: 100%;
+            max-width: 1200px;
+            height: 85vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
 
-        /* Reusing your .stat-card logic but for dark mode */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
+        .admin-card {
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 20px;
-            transition: 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-        .glass-card:hover { background: rgba(255, 255, 255, 0.05); border-color: #0061ff; }
 
-        .nav-link-custom {
-            display: flex; align-items: center; padding: 12px 15px;
-            color: rgba(255,255,255,0.6); border-radius: 10px;
-            margin-bottom: 5px; transition: 0.3s; cursor: pointer;
-        }
-        .nav-link-custom:hover, .nav-link-custom.active { background: #0061ff; color: #fff; }
-        .nav-link-custom i { margin-right: 15px; font-size: 18px; }
+        .stat-label { color: rgba(255,255,255,0.5); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
+        .stat-value { color: #fff; font-family: 'Montserrat-SemiBold'; font-size: 28px; }
 
-        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .badge-active { background: #10b981; color: #fff; }
-        .badge-inactive { background: #ef4444; color: #fff; }
+        /* Custom Scrollbar to match the tech theme */
+        .dash-content::-webkit-scrollbar { width: 4px; }
+        .dash-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
         #login-overlay {
             position: fixed; inset: 0; background: #000; z-index: 9999;
             display: flex; align-items: center; justify-content: center;
         }
-        
-        /* Matching your input styling from main.css */
-        .admin-input {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; border-radius: 10px; padding: 12px; width: 100%; margin-bottom: 15px;
-        }
 
-        canvas { max-height: 250px !important; }
+        .input-terminal {
+            background: transparent;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            text-align: center;
+            font-family: Montserrat-Regular;
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="text-center" style="width: 320px;">
-            <h1 class="Montserrat-SemiBold fs-24 p-b-20">CORE ACCESS</h1>
-            <p class="fs-13 p-b-30 text-muted">Enter administrative management token</p>
-            <input type="password" id="admin_password" class="admin-input text-center" placeholder="••••••••">
-            <button onclick="attemptLogin()" class="btn-primary w-full p-v-12 rounded-pill">AUTHORIZE</button>
-            <p id="login-error" class="text-danger fs-12 p-t-15 dis-none">Invalid Management Token</p>
-        </div>
-    </div>
-
-    <div class="sidebar">
-        <div class="p-b-50">
-            <span class="fs-22 Montserrat-SemiBold">ASHER<span class="text-primary">LINK</span></span>
-        </div>
-        <div class="nav-link-custom active" data-target="dashboard"><i class="zmdi zmdi-view-dashboard"></i> Dashboard</div>
-        <div class="nav-link-custom" data-target="ads-section"><i class="zmdi zmdi-collection-image"></i> Ad Campaigns</div>
-        <div class="nav-link-custom" data-target="billing-section"><i class="zmdi zmdi-money"></i> Billing & Bundles</div>
-        <div class="nav-link-custom" data-target="system-section"><i class="zmdi zmdi-settings"></i> System Health</div>
-        <div class="m-t-100 p-l-15 text-danger cursor-pointer" onclick="logout()">
-            <i class="zmdi zmdi-power"></i> Terminate Session
-        </div>
-    </div>
-
-    <div class="main-content" id="dashboard-content" style="display: none;">
-        
-        <div class="d-flex justify-content-between align-items-center m-b-40">
-            <h2 class="dash-title">Network Operations</h2>
-            <button onclick="downloadReport()" class="btn btn-outline-light btn-sm rounded-pill px-4">
-                <i class="zmdi zmdi-download m-r-10"></i> Export PDF Report
+        <div class="text-center animate__animated animate__fadeIn" style="width: 300px;">
+            <span class="stat-label">System Authentication</span>
+            <h2 class="text-white Montserrat-SemiBold m-b-30 m-t-10">CORE ACCESS</h2>
+            <input type="password" id="admin_password" class="input-terminal" placeholder="ENTER TOKEN">
+            <button onclick="attemptLogin()" class="flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 rounded-pill w-full">
+                AUTHORIZE
             </button>
+            <p id="login-error" class="text-danger fs-12 m-t-20" style="display:none;">ACCESS DENIED</p>
         </div>
+    </div>
 
-        <div class="row m-b-20">
-            <div class="col-md-3">
-                <div class="glass-card">
-                    <p class="fs-12 text-muted">Total Revenue</p>
-                    <h3 id="total-revenue" class="Montserrat-SemiBold">R 0.00</h3>
+    <div class="main-container">
+        <div class="dash-content" id="dashboard-content" style="display:none;">
+            
+            <div class="d-flex justify-content-between align-items-end m-b-40">
+                <div>
+                    <span class="stat-label">Network Operations Center</span>
+                    <h2 class="text-white Montserrat-SemiBold fs-30">ASHER-LINK ADMIN</h2>
+                </div>
+                <div class="text-right">
+                    <button onclick="logout()" class="text-white fs-12 Montserrat-Regular op-05 trans-04 hov-op-1">TERMINATE SESSION</button>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="glass-card">
-                    <p class="fs-12 text-muted">Network Latency</p>
-                    <h3 class="Montserrat-SemiBold text-success">12ms</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card">
-                    <p class="fs-12 text-muted">Active Users</p>
-                    <h3 class="Montserrat-SemiBold">482</h3>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="glass-card">
-                    <p class="fs-12 text-muted">Node Status</p>
-                    <h3 class="Montserrat-SemiBold">99.8%</h3>
-                </div>
-            </div>
-        </div>
 
-        <div class="row m-b-40">
-            <div class="col-md-8">
-                <div class="glass-card" id="dashboard">
-                    <h4 class="fs-16 m-b-20">Campaign Performance (Impressions)</h4>
-                    <canvas id="performanceChart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="glass-card">
-                    <h4 class="fs-16 m-b-20">Revenue Split</h4>
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div id="ads-section" class="p-t-50">
-            <h3 class="dash-title">Ad Campaigns</h3>
-            <div class="glass-card">
-                <form id="uploadForm" class="row">
-                    <div class="col-md-2"><input type="text" id="new_ad_id" class="admin-input" placeholder="Campaign ID"></div>
-                    <div class="col-md-3"><input type="text" id="new_target_url" class="admin-input" placeholder="Redirect URL"></div>
-                    <div class="col-md-2"><input type="number" id="new_cpm" class="admin-input" placeholder="CPM Rate"></div>
-                    <div class="col-md-3"><input type="file" id="new_file" class="admin-input"></div>
-                    <div class="col-md-2"><button type="submit" class="btn btn-primary w-full rounded-pill h-50">DEPLOY</button></div>
-                </form>
-            </div>
-            <div class="row" id="ad-list">
-                </div>
-        </div>
-
-        <div id="billing-section" class="p-t-50">
-            <h3 class="dash-title">Billing & Tokens</h3>
             <div class="row">
+                <div class="col-md-3">
+                    <div class="admin-card">
+                        <p class="stat-label">Net Revenue</p>
+                        <p class="stat-value" id="total-revenue">R 0.00</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="admin-card">
+                        <p class="stat-label">Active Nodes</p>
+                        <p class="stat-value">148/150</p>
+                    </div>
+                </div>
                 <div class="col-md-6">
-                    <div class="glass-card">
-                        <h4 class="fs-16 m-b-20">Create Prepaid Token</h4>
+                    <div class="admin-card">
+                        <p class="stat-label">Global Traffic</p>
+                        <div style="height: 40px;">
+                             <canvas id="miniTrafficChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-8">
+                    <div class="admin-card">
+                        <p class="stat-label m-b-20">Deployment: Active Campaigns</p>
+                        <div id="ad-list" class="row">
+                            </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="admin-card">
+                        <p class="stat-label m-b-20">Revenue Distribution</p>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-6">
+                    <div class="admin-card">
+                        <p class="stat-label m-b-15">Package Configuration</p>
+                        <div id="bundle-list"></div>
+                        <button class="m-t-20 btn-blue fs-12 p-all-10 rounded-pill w-full">ADD NEW BUNDLE</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="admin-card">
+                        <p class="stat-label m-b-15">Token Generation</p>
                         <form id="tokenForm">
-                            <input type="text" id="token_pin" class="admin-input" placeholder="Custom PIN (e.g. SUMMER2024)">
-                            <input type="number" id="token_amount" class="admin-input" placeholder="Value (R)">
-                            <button type="submit" class="btn btn-success w-full rounded-pill">GENERATE TOKEN</button>
+                            <input type="text" id="token_pin" class="input-terminal fs-13" placeholder="TOKEN PIN">
+                            <input type="number" id="token_amount" class="input-terminal fs-13" placeholder="VALUE (R)">
+                            <button type="submit" class="btn-blue fs-12 p-all-10 rounded-pill w-full">GENERATE</button>
                         </form>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="glass-card">
-                        <h4 class="fs-16 m-b-20">Hotspot Bundles</h4>
-                        <div class="row" id="bundle-list"></div>
-                    </div>
-                </div>
             </div>
-        </div>
 
+        </div>
     </div>
 
     <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script>
         const API_BASE = "https://api.oxeansa.co.za/asherlink/admin";
         const SYSTEM_API = "https://api.oxeansa.co.za/asherlink/system";
         const HOTSPOT_API = "https://api.oxeansa.co.za/asherlink/hotspot";
-        const DEFAULT_CPM = 5.00;
         let adminToken = sessionStorage.getItem('adminToken');
-        let performanceChart, revenueChart;
+        let revenueChart;
 
-        // AUTHENTICATION
+        // AUTHENTICATION LOGIC
         async function attemptLogin() {
             const password = document.getElementById('admin_password').value;
             try {
@@ -201,18 +180,18 @@
                     adminToken = data.token;
                     showDashboard();
                 } else {
-                    document.getElementById('login-error').classList.remove('dis-none');
+                    $('#login-error').fadeIn();
                 }
-            } catch (err) { alert("Core API Offline"); }
+            } catch (err) { alert("Core API Connectivity Error"); }
         }
 
         function showDashboard() {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('dashboard-content').style.display = 'block';
+            $('#login-overlay').fadeOut();
+            $('#dashboard-content').show();
             loadDashboard();
         }
 
-        // DATA SYNC
+        // DYNAMIC SYNC
         async function loadDashboard() {
             try {
                 const [adsRes, summaryRes, bundlesRes] = await Promise.all([
@@ -225,71 +204,62 @@
                 const summary = await summaryRes.json();
                 const bundles = await bundlesRes.json();
 
-                document.getElementById('total-revenue').innerText = `R ${Number(summary.total_revenue || 0).toLocaleString()}`;
+                $('#total-revenue').text(`R ${Number(summary.total_revenue || 0).toLocaleString()}`);
                 
                 renderAds(ads);
                 renderBundles(bundles);
                 updateCharts(ads);
-            } catch (err) { console.error(err); }
+            } catch (err) { 
+                console.error(err); 
+                if(err.message === 'Unauthorized') logout();
+            }
         }
 
         function renderAds(ads) {
-            const container = document.getElementById('ad-list');
-            container.innerHTML = ads.map(ad => `
-                <div class="col-md-4">
-                    <div class="glass-card">
-                        <img src="${ad.image_url}" class="w-full rounded m-b-15" style="height:120px; object-fit:cover;">
-                        <h5 class="fs-14 Montserrat-SemiBold">${ad.ad_id}</h5>
-                        <div class="d-flex justify-content-between m-t-10">
-                            <span class="status-badge ${ad.active ? 'badge-active' : 'badge-inactive'}">${ad.active ? 'Live' : 'Paused'}</span>
-                            <span class="text-success">R ${((ad.impressions/1000)*5).toFixed(2)}</span>
+            $('#ad-list').html(ads.map(ad => `
+                <div class="col-md-6 m-b-15">
+                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:15px; border:1px solid rgba(255,255,255,0.05)">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="Montserrat-SemiBold text-white fs-13">${ad.ad_id}</span>
+                            <span class="fs-11" style="color:${ad.active ? '#00ff88' : '#ff3366'}">${ad.active ? 'ACTIVE' : 'PAUSED'}</span>
                         </div>
-                        <button onclick="deleteAd('${ad._id}')" class="btn btn-link text-danger fs-12 p-0 m-t-15">Remove Campaign</button>
+                        <p class="stat-label m-t-10">Earnings: R ${((ad.impressions/1000)*5).toFixed(2)}</p>
                     </div>
                 </div>
-            `).join('');
+            `).join(''));
         }
 
         function renderBundles(bundles) {
-            const container = document.getElementById('bundle-list');
-            container.innerHTML = bundles.map(b => `
-                <div class="col-12 m-b-10">
-                    <div class="p-15 rounded bg-white-05 d-flex justify-content-between align-items-center" style="background:rgba(255,255,255,0.05)">
-                        <div>
-                            <p class="fs-13 Montserrat-SemiBold m-b-0">${b.activePeriod}</p>
-                            <small class="text-muted">${b.bandwidth} | ${b.quota}</small>
-                        </div>
-                        <p class="text-primary Montserrat-SemiBold">R${b.price}</p>
-                    </div>
+            $('#bundle-list').html(bundles.map(b => `
+                <div class="d-flex justify-content-between p-v-10 border-b-white-01">
+                    <span class="text-white fs-12">${b.activePeriod} - ${b.bandwidth}</span>
+                    <span class="text-white Montserrat-SemiBold fs-12">R${b.price}</span>
                 </div>
-            `).join('');
+            `).join(''));
         }
 
         function updateCharts(ads) {
-            const ctx1 = document.getElementById('performanceChart').getContext('2d');
-            if (performanceChart) performanceChart.destroy();
-            performanceChart = new Chart(ctx1, {
-                type: 'bar',
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) revenueChart.destroy();
+            revenueChart = new Chart(ctx, {
+                type: 'doughnut',
                 data: {
                     labels: ads.map(a => a.ad_id),
-                    datasets: [{ label: 'Impressions', data: ads.map(a => a.impressions), backgroundColor: '#0061ff' }]
+                    datasets: [{
+                        data: ads.map(a => a.impressions),
+                        backgroundColor: ['#0061ff', '#60a5fa', '#3b82f6', '#1d4ed8'],
+                        borderWidth: 0
+                    }]
                 },
-                options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.1)' } } } }
+                options: { cutout: '80%', plugins: { legend: { display: false } } }
             });
         }
 
-        // NAV LOGIC
-        document.querySelectorAll('.nav-link-custom').forEach(link => {
-            link.addEventListener('click', () => {
-                document.querySelectorAll('.nav-link-custom').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                const target = link.getAttribute('data-target');
-                document.getElementById(target).scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-
         function logout() { sessionStorage.clear(); location.reload(); }
-        window.onload = () => { if (adminToken) showDashboard(); };
+        
+        $(document).ready(() => { 
+            if (adminToken) showDashboard(); 
+        });
     </script>
 </body>
 </html>

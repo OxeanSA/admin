@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Oxean SA | The Future</title>
+	<title>Oxean SA | ISP Management</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
@@ -14,143 +14,118 @@
 
     <style>
         html, body { overflow: hidden; height: 100vh; width: 100vw; font-family: 'Montserrat-Regular', sans-serif; }
-		
-        .main-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; 
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-
+        .main-container { height: 100vh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; position: relative; z-index: 10; }
 		.dash-mode-header { background: #ffffff !important; border-bottom: 1px solid #e5e7eb; color: #000 !important; }
         .dash-mode-header span, .dash-mode-header a { color: #000 !important; }
-
-		.dash-content { 
-            display: none; 
-            width: 100%; 
-            padding: 20px 20px; 
-            text-align: left; 
-            color: #fafafa; 
-            height: calc(100vh - 75px); 
-            overflow-y: auto;
-        }
-		
+		.dash-content { display: none; width: 100%; padding: 20px 20px; text-align: left; color: #fafafa; height: calc(100vh - 75px); overflow-y: auto; }
         .dash-content.active { display: block; animation: fadeIn 0.4s ease; }
+        .dash-title { font-size: 18px; font-family: Montserrat-SemiBold; text-transform: uppercase; border-left: 4px solid #3b82f6; padding-left: 15px; margin-bottom: 25px; color: #fff; }
         
-        .dash-title { font-size: 18px; font-family: Montserrat-SemiBold; text-transform: uppercase; border-left: 4px solid #fff; padding-left: 15px; margin-bottom: 25px; }
-        .stat-card { border: 1px solid #e5e7eb; padding: 15px; border-radius: 15px; background: #fafafa; transition: 0.3s; margin-bottom: 15px; }
-        .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin-bottom: 5px; }
-        .stat-value { font-size: 16px; font-family: Montserrat-SemiBold; color: #000; }
-
+        /* High-Density Stat Cards */
+        .stat-card { border: 1px solid #e5e7eb; padding: 18px; border-radius: 12px; background: #fafafa; transition: 0.3s; margin-bottom: 15px; }
+        .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: #6b7280; margin-bottom: 5px; font-weight: bold;}
+        .stat-value { font-size: 20px; font-family: Montserrat-SemiBold; color: #111827; }
+        
         .tab-content { display: none; width: 100%; max-width: 1100px; text-align: center; }
         .tab-content.active { display: block; }
+        .grid-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; height: 100%; }
         
-        .meta-title { font-size: 38px !important; font-family: Montserrat-SemiBold; color: #fff; }
-        .grid-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 25px; border-radius: 20px; }
-
         .vertical-nav { position: fixed; left: 25px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 30px; z-index: 1000; }
-        .v-icon { color: #fff; font-size: 22px; opacity: 0.5; cursor: pointer; transition: 0.3s; }
-		.v-icon.active { opacity: 0.8; color: #3b82f6;}
-
-        #login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 9999; display: none; align-items: center; justify-content: center; }
-        .admin-input { background: transparent; border-bottom: 1px solid rgba(255,255,255,0.2); color: #fff; width: 100%; padding: 10px; margin-bottom: 15px; }
+        .v-icon { color: #fff; font-size: 22px; opacity: 0.4; cursor: pointer; transition: 0.3s; }
+		.v-icon.active { opacity: 1; color: #3b82f6; transform: scale(1.2); }
+        
+        #login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .admin-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; }
     </style>
 </head>
 <body>
 	
     <div id="login-overlay">
-        <div class="text-center" style="width: 300px;">
-            <h2 class="text-white Montserrat-SemiBold m-b-30">ADMIN ACCESS</h2>
-            <input type="password" id="admin_password" class="admin-input" placeholder="ENTER ACCESS KEY">
-            <button onclick="attemptAdminLogin()" class="flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 rounded-pill w-full">AUTHORIZE</button>
-            <p id="login-error" class="text-danger fs-12 m-t-20 dis-none">INVALID ACCESS KEY</p>
+        <div class="text-center" style="width: 320px;">
+            <h2 class="text-white Montserrat-SemiBold m-b-30">ISP CORE AUTH</h2>
+            <input type="password" id="admin_password" class="admin-input" placeholder="SYSTEM ACCESS KEY">
+            <button onclick="attemptAdminLogin()" class="flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 rounded-pill w-full">INITIALIZE SESSION</button>
+            <p id="login-error" class="text-danger fs-12 m-t-20 dis-none">ACCESS DENIED: INVALID KEY</p>
         </div>
     </div>
 
 	<div class="simpleslide0">
-		<div class="simpleslide100-item bg-img1" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('images/backgrounds/bg04.jpg') no-repeat center center / cover;"></div>
+		<div class="simpleslide100-item bg-img1" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/backgrounds/bg04.jpg') no-repeat center center / cover;"></div>
 	</div>
 
     <div class="vertical-nav">
-		<i class="zmdi zmdi-home v-icon" onclick="goToDash('overview')" title="Overview"></i>
-        <i class="zmdi zmdi-globe v-icon" onclick="goToDash('marketplace')" title="Explore"></i>
-		<i class="zmdi zmdi-card v-icon" onclick="goToDash('billing')" title="Billing"></i>
-        <i class="zmdi zmdi-chart v-icon" onclick="goToDash('activity')" title="Analytics"></i>
-        <i class="zmdi zmdi-settings v-icon" onclick="openAdmin()" title="Admin Login"></i>
+		<i class="zmdi zmdi-view-dashboard v-icon" onclick="goToDash('overview')" title="System Overview"></i>
+        <i class="zmdi zmdi-collection-image v-icon" onclick="goToDash('ads')" title="Ad Management"></i>
+		<i class="zmdi zmdi-settings-square v-icon" onclick="goToDash('bundles')" title="Bundle Provisioning"></i>
+        <i class="zmdi zmdi-chart-donut v-icon" onclick="goToDash('analytics')" title="Network Traffic"></i>
+        <i class="zmdi zmdi-shield-security v-icon" onclick="openAdmin()" title="System Security"></i>
     </div>
 
 	<div class="main-container size1 overlay1 p-l-75 p-r-75 p-lr-15-sm">
 		<header class="w-full flex-sb-m p-t-20" id="top-header">
-			<div class="wrappic1"><a href="#" onclick="goToTab(0)"><span class="lg-txt1" style="font-size: 20px !important;">Oxean SA</span></a></div>
+			<div class="wrappic1"><a href="#" onclick="goToTab(0)"><span class="lg-txt1" style="font-size: 20px !important;">Oxean SA | ISP</span></a></div>
             <nav class="flex-w flex-m">
-                <a href="#" onclick="logout()" class="s1-txt1" style="font-size: 12px; opacity: 0.8;">Sign out</a>
+                <a href="#" onclick="logout()" class="s1-txt1" style="font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px;">Terminate Session</a>
             </nav>
 		</header>
 
 		<main class="center-content-wrapper">
             <div id="tab-0" class="tab-content active animated fadeIn">
-                <h1 class="meta-title p-b-25">Connecting you<br> to the world</h1>
-				<p class="meta-desc">For the Youth, by the Youth</p>
+                <h1 class="meta-title p-b-25">Oxean Systems<br>Core Management</h1>
+				<p class="meta-desc">Advanced Infrastructure & ISP Provisioning Interface</p>
             </div>
-
-            <div id="tab-1" class="tab-content animated fadeIn">... Ecosystem ...</div>
-            <div id="tab-2" class="tab-content animated fadeIn">... Development ...</div>
+            <div id="tab-1" class="tab-content animated fadeIn">Network Ecosystem Mapping</div>
+            <div id="tab-2" class="tab-content animated fadeIn">System Development Logs</div>
 
             <div id="dash-overview" class="dash-content animated fadeIn">
-                <h2 class="dash-title">System Overview</h2>
-                
+                <h2 class="dash-title">System Financials & Infrastructure</h2>
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="stat-card"><p class="stat-label">My Wallet</p><p class="stat-value" id="balance-display">R 0.00</p></div>
-                        <div class="stat-card"><p class="stat-label">Net Status</p><p class="stat-value text-success" id="status-internet">Active</p></div>
-                        <div class="stat-card"><p class="stat-label">Current Plan</p><p class="stat-value" id="current-plan">Loading...</p></div>
+                        <div class="stat-card"><p class="stat-label">Total System Revenue</p><p class="stat-value" id="total-revenue">R 0.00</p></div>
+                        <div class="stat-card"><p class="stat-label">Network Cash Balance</p><p class="stat-value" id="net-balance-display">R 0.00</p></div>
                     </div>
-
                     <div class="col-md-3">
-                        <div class="stat-card"><p class="stat-label">ISP Revenue</p><p class="stat-value" id="total-revenue">R 0.00</p></div>
-                        <div class="stat-card"><p class="stat-label">Active Nodes</p><p class="stat-value">142</p></div>
-                        <div class="stat-card"><p class="stat-label">System Join Date</p><p class="stat-value" id="join-date">--/--/--</p></div>
+                        <div class="stat-card"><p class="stat-label">Active Hotspot Nodes</p><p class="stat-value">142 Online</p></div>
+                        <div class="stat-card"><p class="stat-label">System Uptime</p><p class="stat-value">99.98%</p></div>
                     </div>
-
                     <div class="col-md-6">
-                        <div class="grid-card" style="height: 100%;">
-                            <h4 class="m-b-15 fs-14">Traffic Analytics</h4>
-                            <canvas id="performanceChart" style="height:180px;"></canvas>
+                        <div class="grid-card">
+                            <p class="stat-label" style="color: #fff;">Revenue Projection (CPM: R5.00)</p>
+                            <canvas id="performanceChart" style="height:150px;"></canvas>
                         </div>
-                    </div>
-                </div>
-
-                <div class="row m-t-20">
-                    <div class="col-md-8">
-                        <div class="flex-sb-m m-b-20">
-                            <h4 class="Montserrat-SemiBold text-white">Ad Campaigns</h4>
-                            <button onclick="$('#upload-ad-box').fadeToggle()" class="btn-blue p-lr-15 p-tb-5 rounded-pill fs-12">New Ad</button>
-                        </div>
-                        <div id="upload-ad-box" class="grid-card m-b-20 dis-none">
-                            <input type="text" id="new_ad_id" class="admin-input" placeholder="Campaign Name">
-                            <input type="text" id="new_ad_url" class="admin-input" placeholder="Image URL">
-                            <button onclick="uploadAd()" class="btn-blue p-lr-20 p-tb-10 rounded-pill w-full">Push Ad</button>
-                        </div>
-                        <div id="ad-list" class="row"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <h4 class="Montserrat-SemiBold text-white m-b-20">Bundles</h4>
-                        <div id="bundle-list"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="dash-marketplace" class="dash-content"><div id="marketplace-grid" class="row"></div></div>
-            <div id="dash-billing" class="dash-content">...</div>
-            <div id="dash-activity" class="dash-content">
-                <canvas id="usageChart"></canvas>
+            <div id="dash-ads" class="dash-content animated fadeIn">
+                <div class="flex-sb-m m-b-25">
+                    <h2 class="dash-title m-b-0">Ad Content Management</h2>
+                    <button onclick="$('#upload-ad-box').fadeToggle()" class="btn-blue p-lr-20 p-tb-8 rounded-pill fs-11">UPLOAD NEW CAMPAIGN</button>
+                </div>
+                <div id="upload-ad-box" class="grid-card m-b-30 dis-none">
+                    <div class="row">
+                        <div class="col-md-5"><input type="text" id="new_ad_id" class="admin-input" placeholder="Campaign Reference Name"></div>
+                        <div class="col-md-7"><input type="text" id="new_ad_url" class="admin-input" placeholder="External Asset URL (Direct Image Link)"></div>
+                    </div>
+                    <button onclick="uploadAd()" class="btn-blue p-lr-20 p-tb-12 rounded-pill w-full">SYNC TO NETWORK ADS</button>
+                </div>
+                <div id="ad-list" class="row"></div>
+            </div>
+
+            <div id="dash-bundles" class="dash-content animated fadeIn">
+                <h2 class="dash-title">Internal Bandwidth Bundles</h2>
+                <div class="row" id="bundle-list"></div>
+            </div>
+
+            <div id="dash-analytics" class="dash-content animated fadeIn">
+                <h2 class="dash-title">Real-time Traffic Analytics</h2>
+                <div class="grid-card">
+                    <canvas id="usageChart" style="height:350px;"></canvas>
+                </div>
             </div>
 		</main>
 
-		<footer class="bottom-controls w-full" style="padding-bottom: 50px;">
+		<footer class="bottom-controls w-full p-b-50">
 			<div class="flex-w flex-c-m">
 				<div class="nav-btn active m-lr-20" onclick="goToTab(0)">~</div>
 				<div class="nav-btn m-lr-20" onclick="goToTab(1)">Ecosystem</div>
@@ -164,139 +139,170 @@
 	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
 
     <script>
-        // --- NAVIGATION & SCROLL LOGIC ---
         let currentTab = 0;
-        const totalTabs = $('.tab-content').length;
+        const totalTabs = 3;
         let isTransitioning = false;
+        
+        const ADMIN_API = "https://api.oxeansa.co.za/asherlink/admin";
+        const SYSTEM_API = "https://api.oxeansa.co.za/asherlink/system";
+        const HOTSPOT_API = "https://api.oxeansa.co.za/asherlink/hotspot";
+        const API_USER = "/api";
+        let adminToken = sessionStorage.getItem('adminToken');
+        let perfChart, trafficChart;
 
+        // SCROLL & TAB LOGIC
         function goToTab(index) {
             $('body').css('background', '#0f172a');
             $('#top-header').removeClass('dash-mode-header');
-            $('.v-icon').removeClass('dash-mode-icons active');
             $('.simpleslide0').show();
             $('.bottom-controls').show();
-            $('.dash-content').removeClass('active');
-            
+            $('.dash-content, .tab-content, .v-icon').removeClass('active');
             currentTab = index;
-            $('.tab-content').removeClass('active');
             $(`#tab-${index}`).addClass('active');
             $('.nav-btn').removeClass('active');
             $($('.nav-btn')[index]).addClass('active');
         }
 
-        window.addEventListener('wheel', function(e) {
+        window.addEventListener('wheel', e => {
             if (isTransitioning || $('.dash-content.active').length) return;
             if (e.deltaY > 0 && currentTab < totalTabs - 1) lockAndGo(currentTab + 1);
             else if (e.deltaY < 0 && currentTab > 0) lockAndGo(currentTab - 1);
         });
 
-        function lockAndGo(index) {
-            isTransitioning = true;
-            goToTab(index);
-            setTimeout(() => { isTransitioning = false; }, 800);
-        }
+        function lockAndGo(i) { isTransitioning = true; goToTab(i); setTimeout(() => {isTransitioning=false;}, 800); }
 
-        // --- API & DATA LOGIC ---
-        const API_BASE = "/api";
-        const ADMIN_API = "https://api.oxeansa.co.za/asherlink/admin";
-        const SYSTEM_API = "https://api.oxeansa.co.za/asherlink/system";
-        const HOTSPOT_API = "https://api.oxeansa.co.za/asherlink/hotspot";
-        let adminToken = sessionStorage.getItem('adminToken');
-        let performanceChart, usageChart;
-
-        async function apiRequest(endpoint, method = 'GET', body = null) {
-            const accessKey = localStorage.getItem('access_key');
-            const refreshKey = localStorage.getItem('refresh_key');
-            const headers = { 'Content-Type': 'application/json', 'X-Access-Key': accessKey || '', 'X-Refresh-Key': refreshKey || '' };
-            const options = { method, headers };
-            if (body) options.body = JSON.stringify(body);
-            try {
-                const response = await fetch(`${API_BASE}${endpoint}`, options);
-                return await response.json();
-            } catch (err) { return null; }
-        }
-
-        function goToDash(sectionId) {
-            $('body').css('background', '#0f172a');
+        // DASHBOARD SWITCHING
+        function goToDash(id) {
+            $('body').css('background', '#0a0f1d');
             $('#top-header').addClass('dash-mode-header');
-            $('.v-icon').addClass('dash-mode-icons');
             $('.simpleslide0').hide();
             $('.bottom-controls').hide();
-            $('.tab-content').removeClass('active');
-            $('.dash-content').removeClass('active');
-            $('.v-icon').removeClass('active');
+            $('.tab-content, .dash-content, .v-icon').removeClass('active');
 
-            $(`#dash-${sectionId}`).addClass('active');
-            $(`i[onclick="goToDash('${sectionId}')"]`).addClass('active');
+            $(`#dash-${id}`).addClass('active');
+            $(`i[onclick="goToDash('${id}')"]`).addClass('active');
 
-            if (sectionId === 'overview') { fetchUserProfile(); loadAdminData(); }
-            if (sectionId === 'marketplace') fetchMarketplace();
-            if (sectionId === 'activity') fetchUsageData();
+            if (id === 'overview') { loadSystemFinance(); loadAdminSummary(); }
+            if (id === 'ads') loadAds();
+            if (id === 'bundles') loadBundles();
+            if (id === 'analytics') fetchTrafficData();
         }
 
-        async function fetchUserProfile() {
-            const data = await apiRequest('/user/profile');
-            if (data) {
-                document.getElementById('balance-display').innerText = `R ${parseFloat(data.balance || 0).toFixed(2)}`;
-                document.getElementById('status-internet').innerText = data.paid ? 'Active' : 'Suspended';
-                document.getElementById('current-plan').innerText = data.internet_plan || 'No Plan';
-                if(data.created_at) document.getElementById('join-date').innerText = new Date(data.created_at).toLocaleDateString();
+        async function loadSystemFinance() {
+            const res = await fetch(`${API_USER}/user/profile`, { 
+                headers: { 'X-Access-Key': localStorage.getItem('access_key') }
+            });
+            const d = await res.json();
+            if(d) {
+                $('#net-balance-display').text(`R ${parseFloat(d.balance || 0).toFixed(2)}`);
             }
         }
 
-        async function loadAdminData() {
-            if (!adminToken) return;
-            try {
-                const [adsRes, summaryRes, bundlesRes] = await Promise.all([
-                    fetch(`${SYSTEM_API}/ads/active`, { headers: { 'X-Admin-Token': adminToken } }),
-                    fetch(`${ADMIN_API}/analytics/summary`, { headers: { 'X-Admin-Token': adminToken } }),
-                    fetch(`${HOTSPOT_API}/bundles`)
-                ]);
-                const ads = await adsRes.json();
-                const summary = await summaryRes.json();
-                const bundles = await bundlesRes.json();
-
-                document.getElementById('total-revenue').innerText = `R ${Number(summary.total_revenue || 0).toLocaleString()}`;
-                
-                // Render Ad list
-                $('#ad-list').html(ads.map(ad => `<div class="col-md-6 m-b-15"><div class="grid-card"><h5 class="fs-12">${ad.ad_id}</h5><p class="fs-10">Impressions: ${ad.impressions}</p></div></div>`).join(''));
-                
-                // Render Bundles
-                $('#bundle-list').html(bundles.map(b => `<div class="p-2 border-b m-b-5 text-xs flex justify-between"><span>${b.activePeriod}</span><strong>R${b.price}</strong></div>`).join(''));
-
-                updatePerformanceChart(ads);
-            } catch (err) { console.error(err); }
+        async function loadAdminSummary() {
+            if(!adminToken) return;
+            const res = await fetch(`${ADMIN_API}/analytics/summary`, { headers: {'X-Admin-Token': adminToken}});
+            const data = await res.json();
+            $('#total-revenue').text(`R ${Number(data.total_revenue || 0).toLocaleString()}`);
+            
+            const adsRes = await fetch(`${SYSTEM_API}/ads/active`);
+            const ads = await adsRes.json();
+            updatePerfChart(ads);
         }
 
-        function updatePerformanceChart(ads) {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            if (performanceChart) performanceChart.destroy();
-            performanceChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: ads.map(a => a.ad_id), datasets: [{ data: ads.map(a => a.impressions), backgroundColor: '#3b82f6' }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.1)' } } } }
+        async function loadAds() {
+            const res = await fetch(`${SYSTEM_API}/ads/active`);
+            const ads = await res.json();
+            $('#ad-list').html(ads.map(ad => `
+                <div class="col-md-4 m-b-20">
+                    <div class="grid-card">
+                        <img src="${ad.image_url}" class="w-full rounded m-b-15" style="height:120px; object-fit:cover; border: 1px solid rgba(255,255,255,0.1);">
+                        <h5 class="fs-13 Montserrat-SemiBold text-white">${ad.ad_id}</h5>
+                        <div class="flex-sb-m m-t-10">
+                            <span class="fs-10 text-muted">${ad.impressions} Impressions</span>
+                            <span class="fs-10 text-success">R${((ad.impressions/1000)*5).toFixed(2)} Earned</span>
+                        </div>
+                    </div>
+                </div>
+            `).join(''));
+        }
+
+        async function loadBundles() {
+            const res = await fetch(`${HOTSPOT_API}/bundles`);
+            const bundles = await res.json();
+            $('#bundle-list').html(bundles.map(b => `
+                <div class="col-md-4 m-b-15">
+                    <div class="stat-card" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
+                        <div class="flex-sb-m">
+                            <div>
+                                <p class="stat-label" style="color:#aaa;">Duration: ${b.activePeriod}</p>
+                                <p class="stat-value" style="color:#fff; font-size:16px;">${b.quota}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="fs-18 Montserrat-SemiBold text-primary">R${b.price}</p>
+                                <small class="text-muted">${b.bandwidth}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join(''));
+        }
+
+        async function fetchTrafficData() {
+            const res = await fetch(`${API_USER}/activity/analysis`, { 
+                headers: { 'X-Access-Key': localStorage.getItem('access_key') }
+            });
+            const data = await res.json();
+            if (!data) return;
+            const ctx = document.getElementById('usageChart').getContext('2d');
+            if (trafficChart) trafficChart.destroy();
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{ label: 'Traffic (Gbps)', data: data.usage, borderColor: '#3b82f6', borderWidth: 3, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4 }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }, x: { grid: { display: false }, ticks: { color: '#888' } } } }
             });
         }
 
-        function openAdmin() {
-            if (adminToken) goToDash('overview');
-            else $('#login-overlay').css('display', 'flex').hide().fadeIn();
+        function updatePerfChart(ads) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            if(perfChart) perfChart.destroy();
+            perfChart = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: ads.map(a=>a.ad_id), datasets: [{data: ads.map(a=>a.impressions), backgroundColor:'#3b82f6', borderRadius: 5}] }, 
+                options: { maintainAspectRatio:false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#fff', font: { size: 10 } } } } }
+            });
         }
 
+        async function uploadAd() {
+            const ad_id = $('#new_ad_id').val();
+            const image_url = $('#new_ad_url').val();
+            if(!ad_id || !image_url) return alert("All fields required");
+            await fetch(`${SYSTEM_API}/ads/upload`, { 
+                method: 'POST', 
+                headers: {'Content-Type':'application/json', 'X-Admin-Token':adminToken}, 
+                body: JSON.stringify({ad_id, image_url}) 
+            });
+            $('#upload-ad-box').hide();
+            loadAds();
+        }
+
+        function openAdmin() { if(adminToken) goToDash('overview'); else $('#login-overlay').css('display', 'flex').hide().fadeIn(); }
+        
         async function attemptAdminLogin() {
             const password = $('#admin_password').val();
-            const res = await fetch(`${ADMIN_API}/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+            const res = await fetch(`${ADMIN_API}/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password}) });
             const data = await res.json();
-            if (res.ok && data.token) {
-                sessionStorage.setItem('adminToken', data.token);
-                adminToken = data.token;
-                $('#login-overlay').hide();
-                goToDash('overview');
+            if(res.ok && data.token) { 
+                sessionStorage.setItem('adminToken', data.token); 
+                adminToken = data.token; 
+                $('#login-overlay').hide(); 
+                goToDash('overview'); 
             } else { $('#login-error').show(); }
         }
 
         function logout() { sessionStorage.clear(); localStorage.clear(); location.reload(); }
-        window.onload = () => { if (localStorage.getItem('access_key')) fetchUserProfile(); };
     </script>
 </body>
 </html>

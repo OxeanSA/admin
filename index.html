@@ -45,7 +45,7 @@
             display: none; 
             width: 100%; 
             padding: 20px 20px; 
-            text-align: left; 
+            text-align: right; 
             
             color: #fafafa; 
             height: calc(100vh - 75px); /* Start exactly below header */
@@ -96,8 +96,12 @@
         .v-icon { color: #fff; font-size: 22px; opacity: 0.5; cursor: pointer; transition: 0.3s; }
         .v-icon:hover { opacity: 1; }
 		.v-icon.active { opacity: 0.8; color: #3b82f6;}
-		.admin-password-container { background: inherit; width: 80%; height: 40px; margin-bottom: 15px; }
+		.admin-password-container { background: transparent; width: 80%; height: 40px; margin-bottom: 15px; }
 		.admin-password-input { border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 100%; padding: 12px; border-radius: 20px; }
+
+		.h-revenue-projection-title { margin-bottom: 8px; }
+		.h-revenue-projection-container { width: 100%; height: 300px; }
+		.h-revenue-projection { width: 100%; height: 100%; }
 
         /* Mobile Adjustments */
         .mobile-only { display: none !important; }
@@ -154,7 +158,7 @@
             
             <div id="tab-0" class="tab-content active animated fadeIn">
                 <h1 class="meta-title p-b-25">Management Dashboard</h1>
-				<div class="admin-password-container">
+				<div class="admin-password-container ">
 					<input type="password" id="admin_password" class="admin-password-input" placeholder="Password">
 				</div>
 				<button onclick="attemptAdminLogin()" class="flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 rounded-pill w-full">LOGIN</button>
@@ -169,11 +173,9 @@
                     <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Speed</p><p class="stat-value net-speed-value">20Mbps</p></div></div>
                     <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Nodes</p><p class="stat-value active-nodes-value">4</p></div></div>
 					<div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Bandwidth</p><p class="stat-value"><span class="bandwidth-download-value">4.7Gb</span> &darr; / <span class="bandwidth-upload-value">320MB</span> &uarr;</p></div></div>
-                    <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Active Servers</p><p class="stat-value">API</p><p class="stat-value">M172-1</p></div></div>
+                    <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Active Servers</p><p class="stat-value">API M172-1</p></div></div>
                 </div>
                 <div class="m-t-40 p-all-30">
-					<p class="stat-label" style="color: #fff;">Revenue Projection (CPM: R5.00)</p>
-                            
                     <h4 class="h-revenue-projection-title">Revenue Projection (CPM: R5.00)</h4>
 					<div class="h-revenue-projection-container">
 						<canvas id="performanceChart" class="h-revenue-projection"></canvas>
@@ -181,9 +183,17 @@
                 </div>
             </div>
 
-            <div id="dash-billing" class="dash-content">
-                <h2 class="dash-title">Billing</h2>
+            <div id="dash-ads" class="dash-content">
+                <h2 class="dash-title">Ads Manager</h2>
                 <div class="row">
+					<div id="upload-ad-box" class="grid-card m-b-30 dis-none">
+                    <div class="row">
+                        <div class="col-md-5"><input type="text" id="new_ad_id" class="admin-input" placeholder="Campaign Reference Name"></div>
+                        <div class="col-md-7"><input type="text" id="new_ad_url" class="admin-input" placeholder="External Asset URL (Direct Image Link)"></div>
+                    </div>
+                    <button onclick="uploadAd()" class="btn-blue p-lr-20 p-tb-12 rounded-pill w-full">SYNC TO NETWORK ADS</button>
+                </div>
+                <div id="ad-list" class="row"></div>
                     <div class="col-md-6">
                         <div class="p-all-30 border m-b-20">
                             <p class="stat-label">Recharge</p>

@@ -120,7 +120,7 @@
         @media (max-width: 767px) {
             .desktop-text { display: none !important; }
 			.on-desktop { display: none !important; }
-			.on-mobile { display: block !important; }
+			.on-mobile { display: flex !important; }
             .mobile-only { display: inline-block !important; font-size: 20px; color: #fff; margin-left: 20px; }
             .vertical-nav { left: 15px; }
 			
@@ -275,9 +275,23 @@
 		const ADMIN_API = "https://api.oxeansa.co.za/asherlink/admin";
         const SYSTEM_API = "https://api.oxeansa.co.za/asherlink/system";
         const HOTSPOT_API = "https://api.oxeansa.co.za/asherlink/hotspot";
-        const API_USER = "/api";
+       
         let adminToken = sessionStorage.getItem('adminToken');
         let perfChart, trafficChart;
+
+		 async function apiRequest(endpoint, method = 'GET', body = null) {
+            const accessKey = localStorage.getItem('access_key');
+            const refreshKey = localStorage.getItem('refresh_key');
+            const headers = { 'Content-Type': 'application/json', 'X-Access-Key': accessKey || '', 'X-Refresh-Key': refreshKey || '' };
+            const options = { method, headers };
+            if (body) options.body = JSON.stringify(body);
+            try {
+                const response = await fetch(`${ADMIN_API}${endpoint}`, options);
+                if (response.status === 401) return null;
+                const data = await response.json();
+                return data;
+            } catch (err) { return null; }
+        }
 
 		async function loadAdminSummary() {
             if(!adminToken) return;
@@ -291,7 +305,7 @@
         }
 
 		async function fetchTrafficData() {
-            const res = await fetch(`${API_USER}/activity/analysis`, { 
+            const res = await fetch(`${ADMIN_API}/activity/analysis`, { 
                 headers: { 'X-Access-Key': localStorage.getItem('access_key') }
             });
             const data = await res.json();
@@ -393,7 +407,6 @@
         //});
 
 		// --- DASHBOARD API & CONTENT LOGIC ---
-        const API_BASE = "/api";
         let usageChart = null;
 
         function goToDash(sectionId) {
@@ -418,20 +431,6 @@
             if (sectionId === 'billing') fetchTransactions();
             if (sectionId === 'activity') fetchUsageData();
             if (sectionId === 'marketplace') fetchMarketplace();
-        }
-
-        async function apiRequest(endpoint, method = 'GET', body = null) {
-            const accessKey = localStorage.getItem('access_key');
-            const refreshKey = localStorage.getItem('refresh_key');
-            const headers = { 'Content-Type': 'application/json', 'X-Access-Key': accessKey || '', 'X-Refresh-Key': refreshKey || '' };
-            const options = { method, headers };
-            if (body) options.body = JSON.stringify(body);
-            try {
-                const response = await fetch(`${API_BASE}${endpoint}`, options);
-                if (response.status === 401) return null;
-                const data = await response.json();
-                return data;
-            } catch (err) { return null; }
         }
 
         async function fetchUserProfile() {

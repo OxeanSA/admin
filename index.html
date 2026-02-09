@@ -162,9 +162,10 @@
             <div id="tab-0" class="tab-content active animated fadeIn">
                 <h1 class="meta-title p-b-25">Dashboard</h1>
 				<div class="admin-password-container flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 w-full">
+					<input type="text" id="admin_username" class="admin-password-input rounded-pill border border-white" placeholder="Username">
 					<input type="password" id="admin_password" class="admin-password-input rounded-pill border border-white" placeholder="Password">
 				</div>
-				<button onclick="attemptAdminLogin()" class="flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 w-full"><span class="rounded-pill border border-white">LOGIN</span></button>
+				<button onclick="attemptAdminLogin()" class="flex-c-m size2 s2-txt1 color-white p-lr-15 trans-04 w-full"><span class="rounded-pill border border-white">LOGIN</span></button>
 				<p id="login-error" class="meta-desc text-danger dis-none" style="font-size: 14px !important;">Invalid Password</p>
             </div>
 
@@ -252,8 +253,88 @@
         let currentTab = 0;
         const totalTabs = $('.tab-content').length;
 
+		const ADMIN_API = "https://api.oxeansa.co.za/asherlink/admin";
+        const SYSTEM_API = "https://api.oxeansa.co.za/asherlink/system";
+        const HOTSPOT_API = "https://api.oxeansa.co.za/asherlink/hotspot";
+        const API_USER = "/api";
+        let adminToken = sessionStorage.getItem('adminToken');
+        let perfChart, trafficChart;
+
+		async function loadAdminSummary() {
+            if(!adminToken) return;
+            const res = await fetch(`${ADMIN_API}/analytics/summary`, { headers: {'X-Admin-Token': adminToken}});
+            const data = await res.json();
+            $('#total-revenue').text(`R ${Number(data.total_revenue || 0).toLocaleString()}`);
+            
+            const adsRes = await fetch(`${SYSTEM_API}/ads/active`);
+            const ads = await adsRes.json();
+            updatePerfChart(ads);
+        }
+
+		async function fetchTrafficData() {
+            const res = await fetch(`${API_USER}/activity/analysis`, { 
+                headers: { 'X-Access-Key': localStorage.getItem('access_key') }
+            });
+            const data = await res.json();
+            if (!data) return;
+            const ctx = document.getElementById('usageChart').getContext('2d');
+            if (trafficChart) trafficChart.destroy();
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{ label: 'Traffic (Gbps)', data: data.usage, borderColor: '#3b82f6', borderWidth: 3, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.4 }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } }, x: { grid: { display: false }, ticks: { color: '#888' } } } }
+            });
+        }
+
+        function updatePerfChart(ads) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            if(perfChart) perfChart.destroy();
+            perfChart = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: ads.map(a=>a.ad_id), datasets: [{data: ads.map(a=>a.impressions), backgroundColor:'#3b82f6', borderRadius: 5}] }, 
+                options: { maintainAspectRatio:false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { color: '#fff', font: { size: 10 } } } } }
+            });
+        }
+
+		async function attemptAdminLogin() {
+            const password = $('#admin_password').val();
+            const res = await fetch(`${ADMIN_API}/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password}) });
+            const data = await res.json();
+            if(res.ok && data.token) { 
+                sessionStorage.setItem('adminToken', data.token); 
+                adminToken = data.token; 
+                $('#login-overlay').hide(); 
+                goToDash('overview'); 
+            } else { $('#login-error').show(); }
+        }
+
+		function checkAdmin() { if(!adminToken) $('#login-overlay').css('display', 'flex').hide().fadeIn(); return; }
+		
+        function logout() { sessionStorage.clear(); localStorage.clear(); location.reload(); }
+
+		async function loadAds() {
+            const res = await fetch(`${SYSTEM_API}/ads/active`);
+            const ads = await res.json();
+            $('#ad-list').html(ads.map(ad => `
+                <div class="col-md-4 m-b-20">
+                    <div class="grid-card">
+                        <img src="${ad.image_url}" class="w-full rounded m-b-15" style="height:120px; object-fit:cover; border: 1px solid rgba(255,255,255,0.1);">
+                        <h5 class="fs-13 Montserrat-SemiBold text-white">${ad.ad_id}</h5>
+                        <div class="flex-sb-m m-t-10">
+                            <span class="fs-10 text-muted">${ad.impressions} Impressions</span>
+                            <span class="fs-10 text-success">R${((ad.impressions/1000)*5).toFixed(2)} Earned</span>
+                        </div>
+                    </div>
+                </div>
+            `).join(''));
+        }
+		
         function goToTab(index) {
 			// Restore Original Look
+			checkAdmin();
             $('body').css('background', '#0f172a');
             $('#top-header').removeClass('dash-mode-header');
             $('.v-icon').removeClass('dash-mode-icons');

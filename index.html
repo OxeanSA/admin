@@ -105,15 +105,22 @@
 		.admin-password-input {  background: transparent; border-radius: 20px; height: 100%; padding: 6px; }
 		.admin-password-input:focus { background: transparent; }
 
+		.login-button { color: #fff; }
+
 		.h-revenue-projection-title { margin-bottom: 8px; }
 		.h-revenue-projection-container { width: 100%; height: 300px; }
 		.h-revenue-projection { width: 100%; height: 100%; }
 
         /* Mobile Adjustments */
+		.on-mobile { display: none !important; }
         .mobile-only { display: none !important; }
+
+		.on-desktop { display; block; }
 
         @media (max-width: 767px) {
             .desktop-text { display: none !important; }
+			.on-desktop { display: none !important; }
+			.on-mobile { display; block; }
             .mobile-only { display: inline-block !important; font-size: 20px; color: #fff; margin-left: 20px; }
             .vertical-nav { left: 15px; }
 			
@@ -170,13 +177,14 @@
             
             <div id="tab-0" class="tab-content active animated fadeIn">
                 <h1 class="meta-title p-b-25">Dashboard</h1>
-				<div class="admin-username-container flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 w-full">
+				<div class="admin-username-container on-mobile flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 w-full">
 					<input type="text" id="admin_username" class="admin-username-input rounded-pill border border-white" placeholder="Username">
 				</div>
 				<div class="admin-password-container flex-c-m size2 s2-txt1 btn-blue p-lr-15 trans-04 w-full">
+					<input type="text" id="admin_username" class="admin-username-input on-desktop rounded-pill border border-white" placeholder="Username">
 					<input type="password" id="admin_password" class="admin-password-input rounded-pill border border-white" placeholder="Password">
 				</div>
-				<button onclick="attemptAdminLogin()" class="flex-c-m size2 s2-txt1 color-white p-lr-15 trans-04 w-full"><span class="rounded-pill border border-white">LOGIN</span></button>
+				<button onclick="attemptAdminLogin()" class="login-button flex-c-m size2 s2-txt1 color-white p-lr-15 trans-04 w-full"><span class="rounded-pill border border-white">LOGIN</span></button>
 				<p id="login-error" class="meta-desc text-danger dis-none" style="font-size: 14px !important;">Invalid Password</p>
             </div>
 
@@ -185,9 +193,9 @@
                 <div class="row">
 					<div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Balance</p><p class="stat-value revenue-balance-value" id="balance-display">R 0.00</p></div></div>
                     <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Speed</p><p class="stat-value net-speed-value">20Mbps</p></div></div>
-                    <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Nodes</p><p class="stat-value active-nodes-value">4</p></div></div>
+                    <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">APs</p><p class="stat-value active-nodes-value">4 <span class="rounded-circle bg-success" style="width: 6px; height: 6px; display: inline-block;"></span> | 0 <span class="rounded-circle bg-danger" style="width: 6px; height: 6px; display: inline-block;"></span></p></div></div>
 					<div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Bandwidth</p><p class="stat-value"><span class="bandwidth-download-value">4.7Gb</span> &darr; / <span class="bandwidth-upload-value">320MB</span> &uarr;</p></div></div>
-                    <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Active Servers</p><p class="stat-value">API | M172-1</p></div></div>
+                    <div class="col-md-3 m-b-20"><div class="stat-card"><p class="stat-label">Servers</p><p class="stat-value">API <span class="rounded-circle bg-success" style="width: 6px; height: 6px; display: inline-block;"></span> | M172-1 <span class="rounded-circle bg-success" style="width: 6px; height: 6px; display: inline-block;"></span></p></div></div>
                 </div>
                 <div class="m-t-40 p-all-30">
                     <h4 class="h-revenue-projection-title">Revenue Projection (CPM: R5.00)</h4>
@@ -390,7 +398,7 @@
 
         function goToDash(sectionId) {
             // High-End Professional Switch
-			checkAdmin();
+			//checkAdmin();
             $('body').css('background', '#0f172a');
             $('#top-header').addClass('dash-mode-header');
             $('.v-icon').addClass('dash-mode-icons');

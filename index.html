@@ -311,7 +311,7 @@
             } else { $('#login-error').show(); }
         }
 
-		function checkAdmin() { if(!adminToken) $('#login-overlay').css('display', 'flex').hide().fadeIn(); return; }
+		function checkAdmin() { if(!adminToken) $('#login-overlay').css('display', 'flex').hide().fadeIn() goToTab(0) return; }
 		
         function logout() { sessionStorage.clear(); localStorage.clear(); location.reload(); }
 
@@ -334,7 +334,6 @@
 		
         function goToTab(index) {
 			// Restore Original Look
-			checkAdmin();
             $('body').css('background', '#0f172a');
             $('#top-header').removeClass('dash-mode-header');
             $('.v-icon').removeClass('dash-mode-icons');
@@ -380,6 +379,7 @@
 
         function goToDash(sectionId) {
             // High-End Professional Switch
+			checkAdmin();
             $('body').css('background', '#0f172a');
             $('#top-header').addClass('dash-mode-header');
             $('.v-icon').addClass('dash-mode-icons');

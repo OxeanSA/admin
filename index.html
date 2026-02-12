@@ -339,12 +339,11 @@
             if(res.ok && data.token) { 
                 sessionStorage.setItem('adminToken', data.token); 
                 adminToken = data.token; 
-                $('#login-overlay').hide(); 
                 goToDash('overview'); 
             } else { $('#login-error').show(); }
         }
 
-		function checkAdmin() { if(!adminToken) $('#login-overlay').css('display', 'flex').hide().fadeIn() goToTab(0) return; }
+		function checkAdmin() { if(!adminToken) return false else return true; }
 		
         function logout() { sessionStorage.clear(); localStorage.clear(); location.reload(); }
 
@@ -411,26 +410,28 @@
 
         function goToDash(sectionId) {
             // High-End Professional Switch
-			//checkAdmin();
-            $('body').css('background', '#0f172a');
-            $('#top-header').addClass('dash-mode-header');
-            $('.v-icon').addClass('dash-mode-icons');
-            $('.simpleslide0').hide();
-            $('.bottom-controls').hide();
-
-            $('.tab-content').removeClass('active');
-            $('.nav-btn').removeClass('active');
-            $('.dash-content').removeClass('active');
-            $('.v-icon').removeClass('active');
-
-            $(`#dash-${sectionId}`).addClass('active');
-            $(`i[onclick="goToDash('${sectionId}')"]`).addClass('active');
-
-           // Data Fetching
-            if (sectionId === 'overview') fetchUserProfile();
-            if (sectionId === 'billing') fetchTransactions();
-            if (sectionId === 'activity') fetchUsageData();
-            if (sectionId === 'marketplace') fetchMarketplace();
+			if (checkAdmin) {
+				$('body').css('background', '#0f172a');
+				$('#top-header').addClass('dash-mode-header');
+				$('.v-icon').addClass('dash-mode-icons');
+				$('.simpleslide0').hide();
+				$('.bottom-controls').hide();
+				
+				$('.tab-content').removeClass('active');
+				$('.nav-btn').removeClass('active');
+				$('.dash-content').removeClass('active');
+				$('.v-icon').removeClass('active');
+				
+				$(`#dash-${sectionId}`).addClass('active');
+				$(`i[onclick="goToDash('${sectionId}')"]`).addClass('active');
+				
+				if (sectionId === 'overview') fetchUserProfile();
+				if (sectionId === 'billing') fetchTransactions();
+				if (sectionId === 'activity') fetchUsageData();
+				if (sectionId === 'marketplace') fetchMarketplace();
+			} else {
+				showLogin();
+			}
         }
 
         async function fetchUserProfile() {
@@ -492,7 +493,10 @@
             }
         }
 
-        window.onload = () => { if (localStorage.getItem('access_key')) fetchUserProfile(); };
+		funtion showLogin() {
+			
+
+        window.onload = () => { if (localStorage.getItem('access_key')) goToDash('overview'); };
     </script>
 </body>
 </html>
